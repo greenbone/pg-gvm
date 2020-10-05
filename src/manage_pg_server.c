@@ -1,6 +1,11 @@
 #include "manage_utils.h"
 
 #include "postgres.h"
+#include "fmgr.h"
+#include "executor/spi.h"
+#include "glib.h"
+
+
 
 /* Copyright (C) 2014-2018 Greenbone Networks GmbH
  *
@@ -105,8 +110,8 @@ sql_next_time_ical (PG_FUNCTION_ARGS)
   else
     periods_offset = PG_GETARG_INT32 (2);
 
-  ret = icalendar_next_time_from_string (ical_string, zone,
-                                         periods_offset);
+  ret = icalendar_next_time_from_string_x (ical_string, zone,
+                                           periods_offset);
   if (ical_string)
     pfree (ical_string);
   if (zone)
