@@ -6,6 +6,9 @@
 #include <libical/ical.h>
 #include <time.h>
 
+icaltimezone *
+icalendar_timezone_from_string_x (const char *);
+
 time_t
 icalendar_next_time_from_string_x (const char *, const char *, int);
 
