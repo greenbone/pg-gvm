@@ -2,7 +2,6 @@
 #ifndef _GVMD_MANAGE_UTILS_X_H
 #define _GVMD_MANAGE_UTILS_X_H
 
-#include <glib.h>
 #include <libical/ical.h>
 #include <time.h>
 

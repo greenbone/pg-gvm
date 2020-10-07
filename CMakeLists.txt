@@ -8,6 +8,7 @@ project(gvm-ical
 set(SRCS
 src/manage_pg_server.c
 src/manage_utils.c
+src/array.c
 )
 
 set(SQL
@@ -27,7 +28,6 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include (FindPkgConfig)
 
 pkg_check_modules (LIBICAL REQUIRED libical>=1.00)
-PKG_CHECK_MODULES (GLIB REQUIRED glib-2.0>=2.40)
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)

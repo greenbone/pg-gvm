@@ -1,4 +1,8 @@
+#include <limits.h>
+
 #include "manage_utils.h"
+#include "array.h"
+#include "postgres.h"
 
 
 /**
@@ -11,23 +15,30 @@
  *
  * @return  GPtrArray with pointers to collected times or NULL on error.
  */
-static GPtrArray*
+static array_x*
 icalendar_times_from_vevent_x (icalcomponent *vevent, icalproperty_kind type)
 {
-  GPtrArray* times;
+  array_x* times;
   icalproperty *date_prop;
 
   if (icalcomponent_isa (vevent) != ICAL_VEVENT_COMPONENT
       || (type != ICAL_EXDATE_PROPERTY && type != ICAL_RDATE_PROPERTY))
     return NULL;
 
-  times = g_ptr_array_new_with_free_func (g_free);
+  times = new_array_x ();
+
+  if (times == NULL) {
+      return NULL;
+  }
 
   date_prop = icalcomponent_get_first_property (vevent, type);
   while (date_prop)
     {
       icaltimetype *time;
-      time = g_malloc0 (sizeof (icaltimetype));
+      time = (icaltimetype*)palloc0 (sizeof (icaltimetype));
+      if (time == NULL) {
+          return NULL;
+      }
       if (type == ICAL_EXDATE_PROPERTY)
         {
           *time = icalproperty_get_exdate (date_prop);
@@ -39,7 +50,9 @@ icalendar_times_from_vevent_x (icalcomponent *vevent, icalproperty_kind type)
           // Assume periods have been converted to date or datetime
           *time = datetimeperiod.time;
         }
-      g_ptr_array_insert (times, -1, time);
+      if (append_x(times, time) != 1) {
+         return NULL;
+      }
       date_prop = icalcomponent_get_next_property (vevent, type);
     }
 
@@ -59,7 +72,7 @@ icalendar_times_from_vevent_x (icalcomponent *vevent, icalproperty_kind type)
  * @return  The next or previous time as time_t.
  */
 static time_t
-icalendar_next_time_from_rdates_x (GPtrArray *rdates,
+icalendar_next_time_from_rdates_x (array_x *rdates,
                                    icaltimetype ref_time_ical,
                                    icaltimezone *tz,
                                    int periods_offset)
@@ -81,7 +94,7 @@ icalendar_next_time_from_rdates_x (GPtrArray *rdates,
       time_t iter_time;
       int time_diff;
 
-      iter_time_ical = g_ptr_array_index (rdates, index);
+      iter_time_ical = (icaltimetype*)rdates->data[index];
       iter_time = icaltime_as_timet_with_zone (*iter_time_ical, tz);
       time_diff = iter_time - ref_time;
 
@@ -109,21 +122,21 @@ icalendar_next_time_from_rdates_x (GPtrArray *rdates,
  *
  * @return  Whether a match was found.
  */
-static gboolean
-icalendar_time_matches_array_x (icaltimetype time, GPtrArray *times_array)
+static int
+icalendar_time_matches_array_x (icaltimetype time, array_x *times_array)
 {
-  gboolean found = FALSE;
+  int found = 0;
   int index;
 
   if (times_array == NULL)
-    return FALSE;
+    return 0;
 
   for (index = 0;
-       found == FALSE && index < times_array->len;
+       found == 0 && index < times_array->len;
        index++)
     {
       int compare_result;
-      icaltimetype *array_time = g_ptr_array_index (times_array, index);
+      icaltimetype *array_time = (icaltimetype*)times_array->data[index];
 
       if (array_time->is_date)
         compare_result = icaltime_compare_date_only (time, *array_time);
@@ -131,7 +144,7 @@ icalendar_time_matches_array_x (icaltimetype time, GPtrArray *times_array)
         compare_result = icaltime_compare (time, *array_time);
 
       if (compare_result == 0)
-        found = TRUE;
+        found = 1;
     }
   return found;
 }
@@ -155,8 +168,8 @@ icalendar_next_time_from_recurrence_x (struct icalrecurrencetype recurrence,
                                        icaltimetype dtstart,
                                        icaltimetype reference_time,
                                        icaltimezone *tz,
-                                       GPtrArray *exdates,
-                                       GPtrArray *rdates,
+                                       array_x *exdates,
+                                       array_x *rdates,
                                        int periods_offset)
 {
   icalrecur_iterator *recur_iter;
@@ -187,7 +200,7 @@ icalendar_next_time_from_recurrence_x (struct icalrecurrencetype recurrence,
        * Get the first rule-based recurrence time, skipping ahead in case
        *  DTSTART is excluded by EXDATEs.  */
 
-      while (icaltime_is_null_time (recur_time) == FALSE
+      while (icaltime_is_null_time (recur_time) == 0
              && icalendar_time_matches_array_x (recur_time, exdates))
         {
           recur_time = icalrecur_iterator_next (recur_iter);
@@ -205,17 +218,17 @@ icalendar_next_time_from_recurrence_x (struct icalrecurrencetype recurrence,
 
       /* Iterate over rule-based recurrences up to first time after
        * reference time */
-      while (icaltime_is_null_time (recur_time) == FALSE
+      while (icaltime_is_null_time (recur_time) == 0
              && icaltime_compare (recur_time, reference_time) < 0)
         {
-          if (icalendar_time_matches_array_x (recur_time, exdates) == FALSE)
+          if (icalendar_time_matches_array_x (recur_time, exdates) == 0)
             prev_time = recur_time;
 
           recur_time = icalrecur_iterator_next (recur_iter);
         }
 
       // Skip further ahead if last recurrence time is in EXDATEs
-      while (icaltime_is_null_time (recur_time) == FALSE
+      while (icaltime_is_null_time (recur_time) == 0
              && icalendar_time_matches_array_x (recur_time, exdates))
         {
           recur_time = icalrecur_iterator_next (recur_iter);
@@ -299,7 +312,7 @@ icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
   icaltimezone *tz;
   icalproperty *rrule_prop;
   struct icalrecurrencetype recurrence;
-  GPtrArray *exdates, *rdates;
+  array_x *exdates, *rdates;
   time_t next_time = 0;
 
   // Only offsets -1 and 0 will work properly
@@ -363,8 +376,8 @@ icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
                                                      periods_offset);
 
   // Cleanup
-  g_ptr_array_free (exdates, TRUE);
-  g_ptr_array_free (rdates, TRUE);
+  free_array_x (exdates);
+  free_array_x (rdates);
 
   return next_time;
 }

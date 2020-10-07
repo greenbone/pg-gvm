@@ -3,7 +3,6 @@
 #include "postgres.h"
 #include "fmgr.h"
 #include "executor/spi.h"
-#include "glib.h"
 
 
 
