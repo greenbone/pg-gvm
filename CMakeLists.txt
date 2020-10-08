@@ -89,6 +89,7 @@ set(SQLOUT "gvm_ical--${PROJECT_VERSION}.sql")
 include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR})
 include_directories("include")
 include_directories (${GLIB_INCLUDE_DIRS})
+link_libraries(${LIBICAL_LIBRARIES})
 
 execute_process(COMMAND ${PGCONFIG} --sharedir OUTPUT_VARIABLE PostgreSQL_SHARE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE) # FIXME: I don't think this work on Windows
 execute_process(COMMAND ${PGCONFIG} --pkglibdir OUTPUT_VARIABLE PostgreSQL_EXTLIB_DIR OUTPUT_STRIP_TRAILING_WHITESPACE) # FIXME: I don't think this work on Windows

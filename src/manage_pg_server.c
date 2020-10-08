@@ -4,7 +4,7 @@
 #include "fmgr.h"
 #include "executor/spi.h"
 
-
+PG_MODULE_MAGIC;
 
 /* Copyright (C) 2014-2018 Greenbone Networks GmbH
  *
