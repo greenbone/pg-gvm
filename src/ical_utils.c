@@ -16,13 +16,13 @@
  */
 
 /**
- * @file manage_utils.c
+ * @file ical_utils.c
  * @brief Implements ical functions for the GVM PostgreSQL Extension.
  */
 
 #include <limits.h>
 
-#include "manage_utils.h"
+#include "ical_utils.h"
 #include "array.h"
 #include "postgres.h"
 

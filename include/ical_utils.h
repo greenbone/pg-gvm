@@ -17,7 +17,7 @@
  */
 
 /**
- * @file manage_utils.h
+ * @file ical_utils.h
  * @brief Headers for ical functions
  */
 

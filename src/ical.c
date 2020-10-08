@@ -17,13 +17,13 @@
  */
 
 /**
- * @file manage_pg_server.c
+ * @file ical.c
  *
  * @brief This file defines functions that are available via the PostgreSQL
  * @brief extension
  */
 
-#include "manage_utils.h"
+#include "ical_utils.h"
 
 #include "postgres.h"
 #include "fmgr.h"

@@ -25,8 +25,8 @@ project(pg_gvm
 
 # List all sourcefiles
 set(SRCS
-    src/manage_pg_server.c
-    src/manage_utils.c
+    src/ical.c
+    src/ical_utils.c
     src/array.c)
 
 # List all sql input files
