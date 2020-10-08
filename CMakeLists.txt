@@ -1,19 +1,37 @@
+# Copyright (C) 2020 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 cmake_minimum_required(VERSION 3.0)
 
-message ("-- Configuring Library for GVM ical functions...")
+message ("-- Configuring PostgreSQL extension for GVMd functions...")
 
-project(gvm-ical
+project(pg_gvm
         VERSION 1.0
         LANGUAGES C)
-set(SRCS
-src/manage_pg_server.c
-src/manage_utils.c
-src/array.c
-)
 
+# List all sourcefiles
+set(SRCS
+    src/manage_pg_server.c
+    src/manage_utils.c
+    src/array.c)
+
+# List all sql input files
 set(SQL
-  ical.in.sql
-)
+    sql/ical.in.sql)
 
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
@@ -27,7 +45,9 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include (FindPkgConfig)
 
+# Check if libical is installed
 pkg_check_modules (LIBICAL REQUIRED libical>=1.00)
+
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
 endif (NOT CMAKE_BUILD_TYPE)
@@ -64,11 +84,13 @@ endif (PROJECT_DEV_VERSION)
 set (PROJECT_VERSION_STRING 
 "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
 
+# Check if pg_config is available
 find_program(PGCONFIG pg_config)
 
 if (NOT PGCONFIG)
 	message(FATAL_ERROR "Could not find pg_config")
 endif ()
+
 execute_process(COMMAND ${PGCONFIG} --version OUTPUT_VARIABLE PGVERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (NOT "${PGVERSION}" MATCHES "${PG_REQUIRED_VERSION}")
 	message(FATAL_ERROR "Wrong PostgreSQL version: found ${PGVERSION}, required ${PG_REQUIRED_VERSION}")
@@ -76,29 +98,30 @@ endif ()
 
 message("-- Found PostreSQL Verion ${PGVERSION}")
 
+# Retrieve postgres include directories
 execute_process(COMMAND ${PGCONFIG} --includedir --includedir-server OUTPUT_VARIABLE PostgreSQL_ACTUAL_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# Set include directories
 include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR})
 include_directories("include")
-
-set(CONTROLIN "control.in")
-set(CONTROLOUT "gvm_ical.control")
-
-set(SQLOUT "gvm_ical--${PROJECT_VERSION}.sql")
-
-include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR})
-include_directories("include")
-include_directories (${GLIB_INCLUDE_DIRS})
 link_libraries(${LIBICAL_LIBRARIES})
 
+# Set control file for postgres extension definition
+set(CONTROLIN "control.in")
+set(CONTROLOUT "pg_gvm.control")
+
+# Set SQL output file using the version to match postgres conventions
+set(SQLOUT "pg_gvm--${PROJECT_VERSION}.sql")
+
+# Determine the postgres lib dirs
 execute_process(COMMAND ${PGCONFIG} --sharedir OUTPUT_VARIABLE PostgreSQL_SHARE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE) # FIXME: I don't think this work on Windows
 execute_process(COMMAND ${PGCONFIG} --pkglibdir OUTPUT_VARIABLE PostgreSQL_EXTLIB_DIR OUTPUT_STRIP_TRAILING_WHITESPACE) # FIXME: I don't think this work on Windows
 
+# Custom targets to build SQL and control files
 add_custom_target(sqlscript ALL DEPENDS ${CMAKE_BINARY_DIR}/${SQLOUT})
 add_custom_target(control ALL DEPENDS ${CMAKE_BINARY_DIR}/${CONTROLOUT})
 
 ## CPack configuration
-
 set (CPACK_CMAKE_GENERATOR "Unix Makefiles")
 set (CPACK_GENERATOR "TGZ")
 set (CPACK_INSTALL_CMAKE_PROJECTS ".;gvm;ALL;/")
@@ -110,9 +133,7 @@ set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_TOPLEVEL_TAG "")
 set (CPACK_SYSTEM_NAME "")
 set (CPACK_TOPLEVEL_TAG "")
-
 set (CPACK_PACKAGE_VERSION "${PROJECT_VERSION_STRING}${PROJECT_VERSION_GIT}")
-
 set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
 set (CPACK_PACKAGE_VENDOR "Greenbone Networks GmbH")
@@ -121,21 +142,27 @@ set (CPACK_SOURCE_IGNORE_FILES
 "/.git/"
 "swp$"
 )
-message("GLIB ld flags: ${GLIB_LDFLAGS}")
+
+# Define the library
 add_library (${CMAKE_PROJECT_NAME} MODULE ${SRCS})
 
+# Prepare control file
 add_custom_command(
 	OUTPUT ${CONTROLOUT}
 	COMMAND cat ${CONTROLIN} | sed -e's/LIBNAME/${CMAKE_PROJECT_NAME}/'  > ${CMAKE_BINARY_DIR}/${CONTROLOUT}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	DEPENDS ${CONTROLIN})
 
+# Prepare SQL file
 add_custom_command(
     OUTPUT ${SQLOUT}
-    COMMAND cat ical.in.sql > ${CMAKE_BINARY_DIR}/${SQLOUT}
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/sqlin
+    COMMAND cp ${SQL} ${CMAKE_BINARY_DIR}/sqlin/
+    COMMAND cd ${CMAKE_BINARY_DIR}/sqlin/ && find -type f | xargs cat > ${CMAKE_BINARY_DIR}/${SQLOUT}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     DEPENDS ${SQL})
 
+# Define install targets
 install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${PostgreSQL_EXTLIB_DIR}")
 install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
 install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")

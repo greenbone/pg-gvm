@@ -16,25 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file array.h
- * @brief Headers for array_x memory management
- */
+CREATE OR REPLACE FUNCTION next_time_ical (text, text)
+    RETURNS integer
+    LANGUAGE C STRICT
+    AS 'MODULE_PATHNAME', $$sql_next_time_ical$$;
 
-#ifndef _GVMD_ARRAY_X_H
-#define _GVMD_ARRAY_X_H
-
-typedef struct array_x
-{
-  void **data;
-  int len;
-  int cap;
-} array_x;
-
-array_x *new_array_x(void);
-
-void free_array_x(array_x *arr);
-
-int append_x(array_x *arr, void *datum);
-
-#endif
+CREATE OR REPLACE FUNCTION next_time_ical (text, text, integer)
+    RETURNS integer
+    LANGUAGE C STRICT
+    AS 'MODULE_PATHNAME', $$sql_next_time_ical$$;

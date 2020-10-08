@@ -1,12 +1,4 @@
-#include "manage_utils.h"
-
-#include "postgres.h"
-#include "fmgr.h"
-#include "executor/spi.h"
-
-PG_MODULE_MAGIC;
-
-/* Copyright (C) 2014-2018 Greenbone Networks GmbH
+/* Copyright (C) 2020 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
@@ -24,6 +16,22 @@ PG_MODULE_MAGIC;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file manage_pg_server.c
+ *
+ * @brief This file defines functions that are available via the PostgreSQL
+ * @brief extension
+ */
+
+#include "manage_utils.h"
+
+#include "postgres.h"
+#include "fmgr.h"
+#include "executor/spi.h"
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
 
 /**
  * @brief Create a string from a portion of text.
@@ -41,27 +49,6 @@ textndup (text *text_arg, int length)
   memcpy (ret, VARDATA (text_arg), length);
   ret[length] = 0;
   return ret;
-}
-
-
-/**
- * @brief Define function for Postgres.
- */
-PG_FUNCTION_INFO_V1 (sql_next_time);
-
-/**
- * @brief Dummy function to allow restoring gvmd-9.0 dumps.
- *
- * @deprecated This function will be removed once direct migration
- *             compatibility with gvmd 9.0 is no longer required
- *
- * @return Postgres NULL Datum.
- */
- __attribute__((deprecated))
-Datum
-sql_next_time (PG_FUNCTION_ARGS)
-{
-  PG_RETURN_NULL ();
 }
 
 /**

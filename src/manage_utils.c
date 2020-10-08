@@ -1,9 +1,30 @@
+/* Copyright (C) 2020 Greenbone Networks GmbH
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file manage_utils.c
+ * @brief Implements ical functions for the GVM PostgreSQL Extension.
+ */
+
 #include <limits.h>
 
 #include "manage_utils.h"
 #include "array.h"
 #include "postgres.h"
-
 
 /**
  * @brief Collect the times of EXDATE or RDATE properties from an VEVENT.
@@ -27,18 +48,20 @@ icalendar_times_from_vevent_x (icalcomponent *vevent, icalproperty_kind type)
 
   times = new_array_x ();
 
-  if (times == NULL) {
+  if (times == NULL)
+    {
       return NULL;
-  }
+    }
 
   date_prop = icalcomponent_get_first_property (vevent, type);
   while (date_prop)
     {
       icaltimetype *time;
       time = (icaltimetype*)palloc0 (sizeof (icaltimetype));
-      if (time == NULL) {
+      if (time == NULL)
+        {
           return NULL;
-      }
+        }
       if (type == ICAL_EXDATE_PROPERTY)
         {
           *time = icalproperty_get_exdate (date_prop);
@@ -50,9 +73,10 @@ icalendar_times_from_vevent_x (icalcomponent *vevent, icalproperty_kind type)
           // Assume periods have been converted to date or datetime
           *time = datetimeperiod.time;
         }
-      if (append_x(times, time) != 1) {
-         return NULL;
-      }
+      if (append_x(times, time) != 1)
+        {
+          return NULL;
+        }
       date_prop = icalcomponent_get_next_property (vevent, type);
     }
 
@@ -408,4 +432,3 @@ icalendar_next_time_from_string_x (const char *ical_string,
   icalcomponent_free (ical_parsed);
   return next_time;
 }
-
