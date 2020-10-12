@@ -96,10 +96,21 @@ if (NOT "${PGVERSION}" MATCHES "${PG_REQUIRED_VERSION}")
 	message(FATAL_ERROR "Wrong PostgreSQL version: found ${PGVERSION}, required ${PG_REQUIRED_VERSION}")
 endif ()
 
-message("-- Found PostreSQL Verion ${PGVERSION}")
-
 # Retrieve postgres include directories
 execute_process(COMMAND ${PGCONFIG} --includedir --includedir-server OUTPUT_VARIABLE PostgreSQL_ACTUAL_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+find_package (PostgreSQL REQUIRED)
+if (NOT PostgreSQL_FOUND)
+  message (SEND_ERROR "The PostgreSQL library is required.")
+endif (NOT PostgreSQL_FOUND)
+string (REGEX MATCH "^[ \t]*\([0-9]+\)\\.\([0-9]+\)\(.*\)" TEMP ${PostgreSQL_VERSION_STRING})
+if (NOT CMAKE_MATCH_1)
+  message (SEND_ERROR "Error matching PostgreSQL version.")
+elseif ((CMAKE_MATCH_1 EQUAL 9 AND CMAKE_MATCH_2 LESS 6)
+        OR (CMAKE_MATCH_1 LESS 9))
+  message (SEND_ERROR "PostgreSQL version >= 9.6 is required")
+  message (STATUS "PostgreSQL version ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}${CMAKE_MATCH_3}")
+endif (NOT CMAKE_MATCH_1)
 
 # Set include directories
 include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR})
