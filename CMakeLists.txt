@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.0)
 
 message ("-- Configuring PostgreSQL extension for GVMd functions...")
 
-project(pg_gvm
+project(pg-gvm
         VERSION 1.0
         LANGUAGES C)
 
@@ -119,14 +119,14 @@ link_libraries(${LIBICAL_LIBRARIES})
 
 # Set control file for postgres extension definition
 set(CONTROLIN "control.in")
-set(CONTROLOUT "pg_gvm.control")
+set(CONTROLOUT "pg-gvm.control")
 
 # Set SQL output file using the version to match postgres conventions
-set(SQLOUT "pg_gvm--${PROJECT_VERSION}.sql")
+set(SQLOUT "pg-gvm--${PROJECT_VERSION}.sql")
 
 # Determine the postgres lib dirs
-execute_process(COMMAND ${PGCONFIG} --sharedir OUTPUT_VARIABLE PostgreSQL_SHARE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE) # FIXME: I don't think this work on Windows
-execute_process(COMMAND ${PGCONFIG} --pkglibdir OUTPUT_VARIABLE PostgreSQL_EXTLIB_DIR OUTPUT_STRIP_TRAILING_WHITESPACE) # FIXME: I don't think this work on Windows
+execute_process(COMMAND ${PGCONFIG} --sharedir OUTPUT_VARIABLE PostgreSQL_SHARE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${PGCONFIG} --pkglibdir OUTPUT_VARIABLE PostgreSQL_EXTLIB_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # Custom targets to build SQL and control files
 add_custom_target(sqlscript ALL DEPENDS ${CMAKE_BINARY_DIR}/${SQLOUT})

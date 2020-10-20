@@ -33,5 +33,5 @@ make && make install
 To use the extension in a database create the extension using
 
 ```sh
-CREATE EXTENSION pg_gvm;
+CREATE EXTENSION "pg-gvm";
 ```
