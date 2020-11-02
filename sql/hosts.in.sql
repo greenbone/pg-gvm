@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-CREATE OR REPLACE FUNCTION next_time_ical (text, text)
-    RETURNS integer
+CREATE OR REPLACE FUNCTION hosts_contains (text, text)
+    RETURNS boolean
     LANGUAGE C STRICT
-    AS 'MODULE_PATHNAME', $$sql_next_time_ical$$;
+    AS 'MODULE_PATHNAME', $$sql_hosts_contains$$;
 
-CREATE OR REPLACE FUNCTION next_time_ical (text, text, integer)
+CREATE OR REPLACE FUNCTION max_hosts (text, text)
     RETURNS integer
     LANGUAGE C STRICT
-    AS 'MODULE_PATHNAME', $$sql_next_time_ical$$;
+    AS 'MODULE_PATHNAME', $$sql_max_hosts$$;

@@ -27,10 +27,12 @@ project(pg-gvm
 set(SRCS
     src/ical.c
     src/ical_utils.c
+    src/hosts.c
     src/array.c)
 
 # List all sql input files
 set(SQL
+    sql/hosts.in.sql
     sql/ical.in.sql)
 
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
