@@ -25,3 +25,13 @@ CREATE OR REPLACE FUNCTION next_time_ical (text, text, integer)
     RETURNS integer
     LANGUAGE C STRICT
     AS 'MODULE_PATHNAME', $$sql_next_time_ical$$;
+
+CREATE OR REPLACE FUNCTION hosts_contains (text, text)
+    RETURNS boolean
+    LANGUAGE C STRICT
+    AS 'MODULE_PATHNAME', $$sql_hosts_contains$$;
+
+CREATE OR REPLACE FUNCTION max_hosts (text, text)
+    RETURNS integer
+    LANGUAGE C STRICT
+    AS 'MODULE_PATHNAME', $$sql_max_hosts$$;
