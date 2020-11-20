@@ -23,11 +23,16 @@
  * @brief extension
  */
 
+#include "defs.h"
 #include "ical_utils.h"
 
 #include "postgres.h"
 #include "fmgr.h"
 #include "executor/spi.h"
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
 
 /**
  * @brief Create a string from a portion of text.

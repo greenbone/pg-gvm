@@ -32,9 +32,24 @@
 
 #include <gvm/base/hosts.h>
 
-#ifdef PG_MODULE_MAGIC
-PG_MODULE_MAGIC;
-#endif
+
+/**
+ * @brief Create a string from a portion of text.
+ *
+ * @param[in]  text_arg  Text.
+ * @param[in]  length    Length to create.
+ *
+ * @return Freshly allocated string.
+ */
+static char *
+textndup (text *text_arg, int length)
+{
+  char *ret;
+  ret = palloc (length + 1);
+  memcpy (ret, VARDATA (text_arg), length);
+  ret[length] = 0;
+  return ret;
+}
 
 /**
  * @brief Get the maximum number of hosts.
@@ -154,4 +169,73 @@ sql_hosts_contains (PG_FUNCTION_ARGS)
       pfree (find_host);
       PG_RETURN_BOOL (ret);
     }
+}
+
+/**
+ * @brief Return number of hosts described by a hosts string.
+ *
+ * @param[in]  given_hosts      String describing hosts.
+ * @param[in]  exclude_hosts    String describing hosts excluded from given set.
+ * @param[in]  max_hosts        Max hosts.
+ *
+ * @return Number of hosts, or -1 on error.
+ */
+int
+manage_count_hosts_max (const char *given_hosts, const char *exclude_hosts,
+                        int max_hosts)
+{
+  int count;
+  gvm_hosts_t *hosts;
+
+  hosts = gvm_hosts_new_with_max (given_hosts, max_hosts);
+  if (hosts == NULL)
+    return -1;
+
+  if (exclude_hosts)
+    {
+      if (gvm_hosts_exclude_with_max (hosts,
+                                      exclude_hosts,
+                                      max_hosts)
+          < 0)
+        return -1;
+    }
+
+  count = gvm_hosts_count (hosts);
+  gvm_hosts_free (hosts);
+
+  return count;
+}
+
+/**
+ * @brief Returns whether a host has an equal host in a hosts string.
+ *
+ * For example, 192.168.10.1 has an equal in a hosts string
+ * "192.168.10.1-5, 192.168.10.10-20" string while 192.168.10.7 doesn't.
+ *
+ * @param[in] hosts_str      Hosts string to check.
+ * @param[in] find_host_str  The host to find.
+ * @param[in] max_hosts      Maximum number of hosts allowed in hosts_str.
+ *
+ * @return 1 if host has equal in hosts_str, 0 otherwise.
+ */
+int
+hosts_str_contains (const char* hosts_str, const char* find_host_str,
+                    int max_hosts)
+{
+  gvm_hosts_t *hosts, *find_hosts;
+
+  hosts = gvm_hosts_new_with_max (hosts_str, max_hosts);
+  find_hosts = gvm_hosts_new_with_max (find_host_str, 1);
+
+  if (hosts == NULL || find_hosts == NULL || find_hosts->count != 1)
+    {
+      gvm_hosts_free (hosts);
+      gvm_hosts_free (find_hosts);
+      return 0;
+    }
+
+  int ret = gvm_host_in_hosts (find_hosts->hosts[0], NULL, hosts);
+  gvm_hosts_free (hosts);
+  gvm_hosts_free (find_hosts);
+  return ret;
 }
