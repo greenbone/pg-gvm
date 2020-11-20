@@ -39,3 +39,38 @@ To use the extension in a database create the extension using
 ```sh
 CREATE EXTENSION "pg-gvm";
 ```
+
+## Test the extension
+
+The tests are based on pgTAP, a unit test tool for PostgreSQL Databases.
+
+### Setup for tests
+
+Install pgTAP cloning the [repository](https://github.com/theory/pgtap.git)
+
+and follow the instructions in the [setup documentation](https://pgtap.org/documentation.html#installation)
+
+### Integration
+
+To use pgTAP in a database use
+
+```sh
+CREATE EXTENSION IF NOT EXISTS pgtap;
+```
+
+as postgres user.
+To check if the extension exists use
+
+```sh
+\dx
+```
+
+### Running the tests
+
+The tests are located in the ```tests``` folder of this repository.
+
+As postgres user run (replace MY_DATABASE with the real name of the database)
+
+```sh
+pg_prove -d MY_DATABASE tests/*.sql
+```
