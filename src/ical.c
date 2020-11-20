@@ -23,7 +23,6 @@
  * @brief extension
  */
 
-#include "defs.h"
 #include "ical_utils.h"
 
 #include "postgres.h"

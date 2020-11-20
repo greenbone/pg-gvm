@@ -25,7 +25,6 @@ project(pg-gvm
 
 # List all sourcefiles
 set(SRCS
-    src/defs.c
     src/ical.c
     src/ical_utils.c
     src/hosts.c
@@ -120,8 +119,8 @@ endif (NOT CMAKE_MATCH_1)
 # Set include directories
 include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR} ${GLIB_INCLUDE_DIRS} ${LIBGVM_BASE_INCLUDE_DIRS})
 include_directories("include")
-link_libraries(${LIBICAL_LIBRARIES})
-
+link_libraries(${LIBICAL_LIBRARIES} ${LIBGVM_BASE_LDFLAGS})
+set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 # Set control file for postgres extension definition
 set(CONTROLIN "control.in")
 set(CONTROLOUT "pg-gvm.control")
