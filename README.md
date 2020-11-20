@@ -12,13 +12,17 @@ This library contains functionality for ical object manipulation.
 * cmake >= 3.0
 * pkg-config
 * libical >= 1.0.0
+* glib >= 2.42
 * PostgreSQL dev >= 9.6
+* libgvm-base >= 20.8
 
 Install these packages using (on Debian GNU/Linux 'Buster' 10):
 
 ```sh
-apt-get install gcc cmake pkg-config libical-dev postgresql-server-dev-11
+apt-get install gcc cmake pkg-config libical-dev libglib2.0-dev postgresql-server-dev-11
 ```
+
+and build the gvm-libs as described in the [README](https://github.com/greenbone/gvm-libs)
 
 ## Configure and Build
 

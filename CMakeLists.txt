@@ -27,10 +27,12 @@ project(pg-gvm
 set(SRCS
     src/ical.c
     src/ical_utils.c
+    src/hosts.c
     src/array.c)
 
 # List all sql input files
 set(SQL
+    sql/hosts.in.sql
     sql/ical.in.sql)
 
 message ("-- Install prefix: ${CMAKE_INSTALL_PREFIX}")
@@ -47,6 +49,8 @@ include (FindPkgConfig)
 
 # Check if libical is installed
 pkg_check_modules (LIBICAL REQUIRED libical>=1.00)
+pkg_check_modules (GLIB REQUIRED glib-2.0>=2.42)
+pkg_check_modules (LIBGVM_BASE REQUIRED libgvm_base>=20.8)
 
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Debug)
@@ -113,10 +117,10 @@ elseif ((CMAKE_MATCH_1 EQUAL 9 AND CMAKE_MATCH_2 LESS 6)
 endif (NOT CMAKE_MATCH_1)
 
 # Set include directories
-include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR})
+include_directories(${PostgreSQL_ACTUAL_INCLUDE_DIR} ${GLIB_INCLUDE_DIRS} ${LIBGVM_BASE_INCLUDE_DIRS})
 include_directories("include")
-link_libraries(${LIBICAL_LIBRARIES})
-
+link_libraries(${LIBICAL_LIBRARIES} ${LIBGVM_BASE_LDFLAGS})
+set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 # Set control file for postgres extension definition
 set(CONTROLIN "control.in")
 set(CONTROLOUT "pg-gvm.control")
