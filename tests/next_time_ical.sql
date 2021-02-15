@@ -28,13 +28,17 @@ BEGIN
     -- If 03:07:00 on the 21st has already passed in May / November,
     --  add 6 months.
     IF $2 > next_time THEN
-      next_time = next_time + interval '6 months';
+      next_time 
+        = (next_time AT TIME ZONE 'Europe/Berlin' + interval '6 months')
+            AT TIME ZONE 'Europe/Berlin';
     END IF;
 
     -- Apply offset
-    next_time = next_time + ($1 * interval '6 months');
+    next_time 
+      = (next_time AT TIME ZONE 'Europe/Berlin' + ($1 * interval '6 months'))
+          AT TIME ZONE 'Europe/Berlin';
 
-    RETURN extract (EPOCH FROM next_time AT TIME ZONE 'UTC');
+    RETURN extract (EPOCH FROM (next_time AT TIME ZONE 'UTC'));
 END;
 $$ LANGUAGE plpgsql;
 
@@ -42,25 +46,25 @@ $$ LANGUAGE plpgsql;
 -- Test the date test model function
 --
 
--- 2020-02-02T12:00:00 -> 2020-05-21T03:07:00
+-- 2020-02-02T12:00:00 CET -> 2020-05-21T03:07:00 CEST
 SELECT is (next_test_time (0, to_timestamp (1580641200)), 1590023220);
 
--- 2020-05-21T03:00:00 -> 2020-05-21T03:07:00
+-- 2020-05-21T03:00:00 CEST -> 2020-05-21T03:07:00 CEST
 SELECT is (next_test_time (0, to_timestamp (1590022800)), 1590023220);
 
--- 2020-05-21T03:10:00 -> 2020-11-21T03:07:00
+-- 2020-05-21T03:10:00 CEST -> 2020-11-21T03:07:00 CET
 SELECT is (next_test_time (0, to_timestamp (1590023400)), 1605924420);
 
--- 2020-08-21T00:00:00 -> 2020-11-21T03:07:00
+-- 2020-08-21T00:00:00 CEST -> 2020-11-21T03:07:00 CET
 SELECT is (next_test_time (0, to_timestamp (1597960800)), 1605924420);
 
--- 2020-11-21T03:00:00 -> 2020-11-21T03:07:00
+-- 2020-11-21T03:00:00 CET -> 2020-11-21T03:07:00 CET
 SELECT is (next_test_time (0, to_timestamp (1605924000)), 1605924420);
 
--- 2020-11-21T03:10:00 -> 2021-05-21T03:07:00
+-- 2020-11-21T03:10:00 CET -> 2021-05-21T03:07:00 CEST
 SELECT is (next_test_time (0, to_timestamp (1605924600)), 1621559220);
 
--- 2020-12-12T11:11:11 -> 2021-05-21T03:07:00
+-- 2020-12-12T11:11:11 CET -> 2021-05-21T03:07:00 CEST
 SELECT is (next_test_time (0, to_timestamp (1607767871)), 1621559220);
 
 --
