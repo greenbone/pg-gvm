@@ -11,7 +11,7 @@ SELECT is(severity_matches_ov (5.0, 10.0), false, 'Should return `false` because
 SELECT ok(severity_matches_ov (5.0, 5.0), 'Should return `true` because the result severity is as high as required by the override or higher');
 SELECT ok(severity_matches_ov (10.0, 5.0), 'Should return `true` because the result severity is as high as required by the override or higher');
 
--- Operator dows not exist: IF $1 <= 0 THEN    RETURN $1 == $2; -> Should be IF $1 <= 0 THEN    RETURN $1 = $2;
+-- Operator does not exist: IF $1 <= 0 THEN    RETURN $1 == $2; -> Should be IF $1 <= 0 THEN    RETURN $1 = $2;
 --                                                       ^^                                               ^
 -- TODO: Fix this and activate the following test cases! Don't forget to increase plan()!
 --
