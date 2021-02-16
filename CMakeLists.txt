@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Greenbone Networks GmbH
+# Copyright (C) 2020-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
@@ -25,6 +25,7 @@ project(pg-gvm
 
 # List all sourcefiles
 set(SRCS
+    src/regexp.c
     src/ical.c
     src/ical_utils.c
     src/hosts.c
@@ -32,6 +33,7 @@ set(SRCS
 
 # List all sql input files
 set(SQL
+    sql/regexp.in.sql
     sql/hosts.in.sql
     sql/ical.in.sql)
 
