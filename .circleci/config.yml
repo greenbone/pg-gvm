@@ -12,14 +12,6 @@ jobs:
           working_directory: ~/gvm-libs
           name: Configure and compile gvm-libs (Debug)
           command: pushd gvm-libs && mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Debug .. && make install && popd
-      - run:
-          working_directory: ~/gvmd
-          name: Checkout gvmd
-          command: git clone --depth 1 https://github.com/greenbone/gvmd.git
-      - run:
-          working_directory: ~/gvmd
-          name: Configure and compile gvmd (Debug)
-          command: pushd gvmd && mkdir build && cd build/ && cmake -DCMAKE_BUILD_TYPE=Debug .. && make install && popd
       - checkout
       - run:
           name: Build and install extension
@@ -34,8 +26,8 @@ jobs:
           name: Add pg-gvm extension
           command: su postgres -c "psql -d gvmd -c 'CREATE EXTENSION \"pg-gvm\";'"
       - run:
-          name: Run gvmd to init database
-          command: gvmd --get-users
+          name: Create gvmd tables
+          command: psql -d gvmd < gvmd-tables.sql
       - run:
           name: Run tests
           command: pg_prove -d gvmd tests/*.sql
