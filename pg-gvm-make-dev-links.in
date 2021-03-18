@@ -1,0 +1,48 @@
+#!/bin/sh
+# Copyright (C) 2021 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Helper script to create symlinks for development setups of pg-gvm
+#
+
+PREFIX_SHARE_DIR="@CMAKE_INSTALL_PREFIX@/share/postgresql"
+PREFIX_EXTLIB_DIR="@CMAKE_INSTALL_PREFIX@/lib/postgresql"
+
+REAL_SHARE_DIR="@PostgreSQL_SHARE_DIR@"
+REAL_EXTLIB_DIR="@PostgreSQL_EXTLIB_DIR@"
+
+LIB_PREFIX="@CMAKE_SHARED_MODULE_PREFIX@"
+LIB_SUFFIX="@CMAKE_SHARED_MODULE_SUFFIX@"
+LIB_FILE_NAME="${LIB_PREFIX}@CMAKE_PROJECT_NAME@${LIB_SUFFIX}"
+
+CONTROLOUT="@CONTROLOUT@"
+SQLOUT="@SQLOUT@"
+
+echo "Creating links:"
+
+echo "  $REAL_SHARE_DIR/extension/$CONTROLOUT"
+ln -s "$PREFIX_SHARE_DIR/extension/$CONTROLOUT" \
+   "$REAL_SHARE_DIR/extension/$CONTROLOUT"
+
+echo "  $REAL_SHARE_DIR/extension/$SQLOUT"
+ln -s "$PREFIX_SHARE_DIR/extension/$SQLOUT" \
+   "$REAL_SHARE_DIR/extension/$SQLOUT"
+
+echo "  $REAL_EXTLIB_DIR/$LIB_FILE_NAME"
+ln -s "$PREFIX_EXTLIB_DIR/$LIB_FILE_NAME" \
+   "$REAL_EXTLIB_DIR/$LIB_FILE_NAME"
