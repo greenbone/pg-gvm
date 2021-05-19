@@ -23,9 +23,6 @@ jobs:
           name: Add "/usr/local/lib" as ld directory
           command: echo "/usr/local/lib" >> /etc/ld.so.conf.d/gvm.conf && ldconfig
       - run:
-          name: Create symlinks for extension to install prefix
-          command: /usr/local/sbin/pg-gvm-make-dev-links
-      - run:
           name: Add pg-gvm extension
           command: psql -d gvmd -c 'SET ROLE dba; CREATE EXTENSION "pg-gvm";'
       - run:

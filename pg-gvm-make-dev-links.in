@@ -20,8 +20,8 @@
 # Helper script to create symlinks for development setups of pg-gvm
 #
 
-PREFIX_SHARE_DIR="@CMAKE_INSTALL_PREFIX@/share/postgresql"
-PREFIX_EXTLIB_DIR="@CMAKE_INSTALL_PREFIX@/lib/postgresql"
+PREFIX_SHARE_DIR="@CMAKE_INSTALL_DEV_PREFIX@/share/postgresql"
+PREFIX_EXTLIB_DIR="@CMAKE_INSTALL_DEV_PREFIX@/lib/postgresql"
 
 REAL_SHARE_DIR="@PostgreSQL_SHARE_DIR@"
 REAL_EXTLIB_DIR="@PostgreSQL_EXTLIB_DIR@"
