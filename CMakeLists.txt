@@ -180,7 +180,7 @@ add_custom_command(
     DEPENDS ${SQL})
 
 # Define install targets
-if (CMAKE_INSTALL_PREFIX)
+if (CMAKE_INSTALL_DEV_PREFIX)
   install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/postgresql")
   configure_file("${CMAKE_SOURCE_DIR}/pg-gvm-make-dev-links.in" "${CMAKE_BINARY_DIR}/pg-gvm-make-dev-links" @ONLY)
   install(
