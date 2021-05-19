@@ -181,16 +181,16 @@ add_custom_command(
 
 # Define install targets
 if (CMAKE_INSTALL_DEV_PREFIX)
-  install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/postgresql")
+  install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/lib/postgresql")
   configure_file("${CMAKE_SOURCE_DIR}/pg-gvm-make-dev-links.in" "${CMAKE_BINARY_DIR}/pg-gvm-make-dev-links" @ONLY)
   install(
     FILES "${CMAKE_BINARY_DIR}/pg-gvm-make-dev-links"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/sbin"
+    DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/sbin"
     PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
   )
-  install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/postgresql/extension")
-  install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/postgresql/extension")
-  message(NOTICE "${CMAKE_PROJECT_NAME} installed with prefix. Run ${CMAKE_INSTALL_PREFIX}/sbin/pg-gvm-make-dev-links as root to create symlinks to this installation.")
+  install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
+  install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
+  message(NOTICE "${CMAKE_PROJECT_NAME} installed with prefix. Run ${CMAKE_INSTALL_DEV_PREFIX}/sbin/pg-gvm-make-dev-links as root to create symlinks to this installation.")
 else (CMAKE_INSTALL_DEV_PREFIX)
   install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${PostgreSQL_EXTLIB_DIR}")
   install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
