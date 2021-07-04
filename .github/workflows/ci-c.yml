@@ -1,0 +1,39 @@
+name: Build and test C
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+  build_and_test_debug:
+    name: Build and test
+    runs-on: ubuntu-latest
+    container: greenbone/build-env-gvm-master-debian-buster-gcc-pgtap
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Check out gvm-libs
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: greenbone/gvm-libs
+          path: gvm-libs
+      - name: Configure and compile gvm-libs (Debug)
+        working-directory: gvm-libs
+        run: |
+          mkdir build && cd build/ &&                \
+          cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE .. && \
+          make install
+      - name: Build and install extension
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make install
+      - name: Start PostgreSQL server
+        run: su postgres -c "pg_ctlcluster 11 main start"
+      - name: Add "/usr/local/lib" as ld directory
+        run: echo "/usr/local/lib" >> /etc/ld.so.conf.d/gvm.conf && ldconfig
+      - name: Add pg-gvm extension
+        run: psql -d gvmd -c 'SET ROLE dba; CREATE EXTENSION "pg-gvm";'
+      - name: Create gvmd tables
+        run: psql -d gvmd < gvmd-tables.sql
+      - name: Run tests
+        run: pg_prove -d gvmd tests/*.sql
