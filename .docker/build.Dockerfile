@@ -16,6 +16,7 @@ WORKDIR /source
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \ 
     build-essential \
+    pkg-config \
     cmake \
     libglib2.0-dev \
     postgresql-server-dev-13 \
