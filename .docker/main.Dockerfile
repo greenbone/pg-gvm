@@ -10,6 +10,7 @@ RUN apt-get update && \
     build-essential \
     cmake \
     libglib2.0-dev \
+    libgnutls28-dev \
     postgresql-server-dev-13 \
     pkg-config \
     libical-dev && \
