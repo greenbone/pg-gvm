@@ -5,7 +5,7 @@ ARG VERSION=main
 ARG COMPILER=gcc
 
 # We want gvmd to be ready so we use the docker image of gvmd
-FROM greenbone/gvmd:$VERSION
+FROM greenbone/gvm-libs:$VERSION
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive

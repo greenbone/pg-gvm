@@ -1,4 +1,4 @@
-FROM greenbone/gvmd:main
+FROM greenbone/gvm-libs:main
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
