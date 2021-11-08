@@ -22,8 +22,6 @@ RUN apt-get update && \
     postgresql-server-dev-13 \
     pkg-config \
     libical-dev \
-    #postgresql \
-    #postgresql-contrib \
     pgtap \
  && rm -rf /var/lib/apt/lists/*
 
