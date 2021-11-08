@@ -2,9 +2,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/build-env-gvm-master-debian-buster-gcc-pgtap
+    container: greenbone/pg-gvm-gcc-build:main
 
     strategy:
       fail-fast: false
