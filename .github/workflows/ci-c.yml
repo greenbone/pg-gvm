@@ -18,7 +18,7 @@ jobs:
       - name: Build and install extension
         run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make install
       - name: Start PostgreSQL server
-        run: su postgres -c "pg_ctlcluster 11 main start"
+        run: su postgres -c "pg_ctlcluster 13 main start"
       - name: Add "/usr/local/lib" as ld directory
         run: echo "/usr/local/lib" >> /etc/ld.so.conf.d/gvm.conf && ldconfig
       - name: Add pg-gvm extension
