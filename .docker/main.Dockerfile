@@ -12,7 +12,7 @@ RUN apt-get update && \
     libglib2.0-dev \
     postgresql-server-dev-13 \
     pkg-config \
-    libical-dev \
+    libical-dev && \
     rm -rf /var/lib/apt/lists/*
 
 COPY . /source
