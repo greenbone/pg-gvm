@@ -1,11 +1,11 @@
 # Dockerfile for pg-gvm-$VERSION-$COMPILER-testing
 
 # Define ARG we use through the build
-ARG VERSION=main
+ARG VERSION=unstable
 ARG COMPILER=gcc
 
 # We want gvmd to be ready so we use the docker image of gvmd
-FROM greenbone/gvm-libs:$VERSION
+FROM greenbone/gvm-libs:${VERSION}
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
@@ -14,7 +14,7 @@ WORKDIR /source
 
 # Install postgresql
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \ 
+    apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     cmake \
@@ -22,8 +22,8 @@ RUN apt-get update && \
     postgresql-server-dev-13 \
     pkg-config \
     libical-dev \
-    pgtap \
- && rm -rf /var/lib/apt/lists/*
+    pgtap && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set up database
 USER postgres
