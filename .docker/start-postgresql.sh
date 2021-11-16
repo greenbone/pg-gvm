@@ -1,4 +1,5 @@
 #!/bin/sh
+
 [ -z "$GVMD_USER" ] && GVMD_USER="gvmd"
 
 pg_ctlcluster 13 main start

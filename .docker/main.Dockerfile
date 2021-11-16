@@ -32,7 +32,7 @@ RUN mkdir /build && \
 FROM greenbone/gvm-libs:${VERSION}
 
 COPY --from=builder /install/ /
-COPY .docker/start.sh /usr/local/bin/
+COPY .docker/start-postgresql.sh /usr/local/bin/
 
 RUN chmod 755 /usr/local/bin/start.sh
 
@@ -59,4 +59,4 @@ RUN sed -i 's/peer/trust/' /etc/postgresql/13/main/pg_hba.conf
 
 USER postgres
 
-CMD ["/usr/local/bin/start.sh"]
+CMD ["/usr/local/bin/start-postgresql.sh"]
