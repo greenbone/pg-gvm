@@ -32,7 +32,7 @@ RUN mkdir /build && \
 FROM greenbone/gvm-libs:${VERSION}
 
 COPY --from=builder /install/ /
-COPY .docker/start-postgresql.sh /usr/local/bin/start-postgres
+COPY .docker/start-postgresql.sh /usr/local/bin/start-postgresql
 
 RUN chmod 755 /usr/local/bin/start-postgres
 
