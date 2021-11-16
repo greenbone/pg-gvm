@@ -22,8 +22,8 @@ RUN apt-get update && \
     postgresql-server-dev-13 \
     pkg-config \
     libical-dev \
-    pgtap \
-    && rm -rf /var/lib/apt/lists/*
+    pgtap && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set up database
 USER postgres
