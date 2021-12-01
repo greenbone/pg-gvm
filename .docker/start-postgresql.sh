@@ -15,7 +15,7 @@ psql -d gvmd -c 'create extension "pgcrypto";'
 psql -d gvmd -c 'create extension "pg-gvm";'
 
 pg_ctlcluster --foreground 13 main stop
-pg_ctlcluster --foreground 13 main start
-
 # Touch file, signaling startup is done
-touch $PGRES_DATA/done
+touch $PGRES_DATA/started
+pg_ctlcluster --foreground 13 main start
+rm $PGRES_DATA/started
