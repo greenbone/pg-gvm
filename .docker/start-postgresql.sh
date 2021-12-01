@@ -1,6 +1,7 @@
 #!/bin/sh
 
 [ -z "$GVMD_USER" ] && GVMD_USER="gvmd"
+[ -z "$PGRES_DATA"] && PGRES_DATA="/var/lib/postgresql"
 
 pg_ctlcluster 13 main start
 
@@ -15,3 +16,6 @@ psql -d gvmd -c 'create extension "pg-gvm";'
 
 pg_ctlcluster --foreground 13 main stop
 pg_ctlcluster --foreground 13 main start
+
+# Touch file, signaling startup is done
+touch $PGRES_DATA/done
