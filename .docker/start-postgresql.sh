@@ -3,6 +3,8 @@
 [ -z "$GVMD_USER" ] && GVMD_USER="gvmd"
 [ -z "$PGRES_DATA"] && PGRES_DATA="/var/lib/postgresql"
 
+rm -f $PGRES_DATA/started
+
 pg_ctlcluster 13 main start
 
 createuser -DRS "$GVMD_USER"
