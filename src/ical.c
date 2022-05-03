@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -67,6 +67,7 @@ Datum
 sql_next_time_ical (PG_FUNCTION_ARGS)
 {
   char *ical_string, *zone;
+  int64 reference_time;
   int periods_offset;
   int32 ret;
 
@@ -83,20 +84,25 @@ sql_next_time_ical (PG_FUNCTION_ARGS)
     }
 
   if (PG_NARGS() < 2 || PG_ARGISNULL (1))
+    reference_time = 0;
+  else
+    reference_time = PG_GETARG_INT64 (1);
+    
+  if (PG_NARGS() < 3 || PG_ARGISNULL (2))
     zone = NULL;
   else
     {
       text* timezone_arg;
-      timezone_arg = PG_GETARG_TEXT_P (1);
+      timezone_arg = PG_GETARG_TEXT_P (2);
       zone = textndup (timezone_arg, VARSIZE (timezone_arg) - VARHDRSZ);
     }
 
-  if (PG_NARGS() < 3)
+  if (PG_NARGS() < 4)
     periods_offset = 0;
   else
-    periods_offset = PG_GETARG_INT32 (2);
+    periods_offset = PG_GETARG_INT32 (3);
 
-  ret = icalendar_next_time_from_string_x (ical_string, zone,
+  ret = icalendar_next_time_from_string_x (ical_string, reference_time, zone,
                                            periods_offset);
   if (ical_string)
     pfree (ical_string);

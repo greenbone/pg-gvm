@@ -102,7 +102,7 @@ RRULE:FREQ=MONTHLY;INTERVAL=6;BYMONTHDAY=21
 UID:8c022087-e10a-462e-a1af-65559601a0db
 DTSTAMP:20200615T161125Z
 END:VEVENT
-END:VCALENDAR', 'Europe/Berlin'),
+END:VCALENDAR', EXTRACT (EPOCH from now())::bigint, 'Europe/Berlin'),
 next_test_time (0, now ()),
 'Calculation was wrong');
 
@@ -137,7 +137,7 @@ RRULE:FREQ=MONTHLY;INTERVAL=6;BYMONTHDAY=21
 UID:8c022087-e10a-462e-a1af-65559601a0db
 DTSTAMP:20200615T161125Z
 END:VEVENT
-END:VCALENDAR', 'Europe/Berlin', 0),
+END:VCALENDAR', EXTRACT (EPOCH from now())::bigint, 'Europe/Berlin', 0),
 next_test_time (0, now ()),
 'Calculation was wrong');
 
@@ -172,7 +172,7 @@ RRULE:FREQ=MONTHLY;INTERVAL=6;BYMONTHDAY=21
 UID:8c022087-e10a-462e-a1af-65559601a0db
 DTSTAMP:20200615T161125Z
 END:VEVENT
-END:VCALENDAR', 'Europe/Berlin', -1),
+END:VCALENDAR', EXTRACT (EPOCH from now())::bigint, 'Europe/Berlin', -1),
 next_test_time (-1, now ()),
 'Calculation was wrong');
 

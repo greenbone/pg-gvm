@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -31,10 +31,11 @@ icaltimezone *
 icalendar_timezone_from_string_x (const char *);
 
 time_t
-icalendar_next_time_from_string_x (const char *, const char *, int);
+icalendar_next_time_from_string_x (const char *, time_t, const char *, int);
 
 time_t
-icalendar_next_time_from_vcalendar_x (icalcomponent *, const char *, int);
+icalendar_next_time_from_vcalendar_x (icalcomponent *, time_t, const char *,
+                                      int);
 
 #endif
 
