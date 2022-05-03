@@ -1,5 +1,5 @@
 
-/* Copyright (C) 2020 Greenbone Networks GmbH
+/* Copyright (C) 2020-2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -127,7 +127,7 @@ icalendar_next_time_from_rdates_x (array_x *rdates,
       // Cases: previous (offset -1): latest before reference
       //        next     (offset  0): earliest after reference
       if ((periods_offset == -1 && time_diff < 0 && time_diff > old_diff)
-          || (periods_offset == 0 && time_diff > 0 && time_diff < old_diff))
+          || (periods_offset == 0 && time_diff >= 0 && time_diff < old_diff))
         {
           closest_time = iter_time;
           old_diff = time_diff;
@@ -245,7 +245,7 @@ icalendar_next_time_from_recurrence_x (struct icalrecurrencetype recurrence,
       /* Iterate over rule-based recurrences up to first time after
        * reference time */
       while (icaltime_is_null_time (recur_time) == 0
-             && icaltime_compare (recur_time, reference_time) < 0)
+             && icaltime_compare (recur_time, reference_time) <= 0)
         {
           if (icalendar_time_matches_array_x (recur_time, exdates) == 0)
             prev_time = recur_time;
@@ -321,8 +321,10 @@ icalendar_timezone_from_string_x (const char *tzid)
  * @brief  Get the next or previous due time from a VCALENDAR component.
  * The VCALENDAR must have simplified with icalendar_from_string for this to
  *  work reliably.
+ * The reference time is usually the current time.
  *
  * @param[in]  vcalendar       The VCALENDAR component to get the time from.
+ * @param[in]  reference_time  The reference time for calculating the next time.
  * @param[in]  default_tzid    Timezone id to use if none is set in the iCal.
  * @param[in]  periods_offset  0 for next, -1 for previous from/before now.
  *
@@ -330,11 +332,13 @@ icalendar_timezone_from_string_x (const char *tzid)
  */
 time_t
 icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
+                                      time_t reference_time,
                                       const char *default_tzid,
                                       int periods_offset)
 {
+  time_t now;
   icalcomponent *vevent;
-  icaltimetype dtstart, dtstart_with_tz, ical_now;
+  icaltimetype dtstart, dtstart_with_tz, ical_reference_time;
   icaltimezone *tz;
   icalproperty *rrule_prop;
   struct icalrecurrencetype recurrence;
@@ -375,12 +379,12 @@ icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
   icaltime_set_timezone (&dtstart_with_tz, tz);
 
   // Get current time
-  ical_now = icaltime_current_time_with_zone (tz);
+  ical_reference_time = icaltime_from_timet_with_zone (reference_time, 0, tz);
   // Set timezone explicitly because icaltime_current_time_with_zone doesn't.
-  icaltime_set_timezone (&ical_now, tz);
-  if (ical_now.zone == NULL)
+  icaltime_set_timezone (&ical_reference_time, tz);
+  if (ical_reference_time.zone == NULL)
     {
-      ical_now.zone = tz;
+      ical_reference_time.zone = tz;
     }
 
   // Get EXDATEs and RDATEs
@@ -397,7 +401,7 @@ icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
   // Calculate next time.
   next_time = icalendar_next_time_from_recurrence_x (recurrence,
                                                      dtstart_with_tz,
-                                                     ical_now, tz,
+                                                     ical_reference_time, tz,
                                                      exdates, rdates,
                                                      periods_offset);
 
@@ -413,8 +417,10 @@ icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
  * @brief  Get the next or previous due time from a VCALENDAR string.
  * The string must be a VCALENDAR simplified with icalendar_from_string for
  *  this to work reliably.
+ * The reference time is usually the current time.
  *
  * @param[in]  ical_string     The VCALENDAR string to get the time from.
+ * @param[in]  reference_time  The reference time for calculating the next time.
  * @param[in]  default_tzid    Timezone id to use if none is set in the iCal.
  * @param[in]  periods_offset  0 for next, -1 for previous from/before now.
  *
@@ -422,6 +428,7 @@ icalendar_next_time_from_vcalendar_x (icalcomponent *vcalendar,
  */
 time_t
 icalendar_next_time_from_string_x (const char *ical_string,
+                                   time_t reference_time,
                                    const char *default_tzid,
                                    int periods_offset)
 {
@@ -429,7 +436,9 @@ icalendar_next_time_from_string_x (const char *ical_string,
   icalcomponent *ical_parsed;
 
   ical_parsed = icalcomponent_new_from_string (ical_string);
-  next_time = icalendar_next_time_from_vcalendar_x (ical_parsed, default_tzid,
+  next_time = icalendar_next_time_from_vcalendar_x (ical_parsed,
+                                                    reference_time,
+                                                    default_tzid,
                                                     periods_offset);
   icalcomponent_free (ical_parsed);
   return next_time;
