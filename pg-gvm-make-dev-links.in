@@ -39,9 +39,12 @@ echo "  $REAL_SHARE_DIR/extension/$CONTROLOUT"
 ln -s "$PREFIX_SHARE_DIR/extension/$CONTROLOUT" \
    "$REAL_SHARE_DIR/extension/$CONTROLOUT"
 
-echo "  $REAL_SHARE_DIR/extension/$SQLOUT"
-ln -s "$PREFIX_SHARE_DIR/extension/$SQLOUT" \
-   "$REAL_SHARE_DIR/extension/$SQLOUT"
+for update_file in $(ls -1 $PREFIX_SHARE_DIR/extension/*.sql);
+do
+  update_basename=$(basename "$update_file")
+  echo "  $REAL_SHARE_DIR/extension/$update_basename"
+  ln -s "$update_file" "$REAL_SHARE_DIR/extension/$update_basename"
+done
 
 echo "  $REAL_EXTLIB_DIR/$LIB_FILE_NAME"
 ln -s "$PREFIX_EXTLIB_DIR/$LIB_FILE_NAME" \

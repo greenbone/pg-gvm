@@ -1,4 +1,4 @@
-/* Copyright (C) 2020-2022 Greenbone Networks GmbH
+/* Copyright (C) 2022 Greenbone Networks GmbH
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
@@ -25,3 +25,7 @@ CREATE OR REPLACE FUNCTION next_time_ical (text, bigint, text, integer)
     RETURNS integer
     LANGUAGE C STRICT
     AS 'MODULE_PATHNAME', $$sql_next_time_ical$$;
+
+DROP FUNCTION IF EXISTS next_time_ical (text, text);
+
+DROP FUNCTION IF EXISTS  next_time_ical (text, text, integer);
