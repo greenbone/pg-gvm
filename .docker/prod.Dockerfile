@@ -33,8 +33,9 @@ FROM greenbone/gvm-libs:${VERSION}
 
 COPY --from=builder /install/ /
 COPY .docker/start-postgresql.sh /usr/local/bin/start-postgresql
+COPY .docker/entrypoint.sh /usr/local/bin/entrypoint
 
-RUN chmod 755 /usr/local/bin/start-postgresql
+RUN chmod 755 /usr/local/bin/start-postgresql /usr/local/bin/entrypoint
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -57,6 +58,6 @@ RUN chown -R postgres:postgres /etc/postgresql
 
 RUN sed -i 's/peer/trust/' /etc/postgresql/13/main/pg_hba.conf
 
-USER postgres
+ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
 
 CMD ["/usr/local/bin/start-postgresql"]
