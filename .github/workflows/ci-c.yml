@@ -11,7 +11,7 @@ jobs:
   build_and_test_debug:
     name: Build and test
     runs-on: ubuntu-latest
-    container: greenbone/pg-gvm-gcc-build:unstable
+    container: greenbone/pg-gvm-build:unstable
     steps:
       - uses: actions/checkout@v2
 
