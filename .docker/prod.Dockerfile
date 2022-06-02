@@ -40,6 +40,7 @@ RUN apt-get update && \
     libgpgme11 \
     libical3 \
     libpq5 \
+    gosu \
     postgresql-13 \
     postgresql-client-13 \
     postgresql-client-common && \
