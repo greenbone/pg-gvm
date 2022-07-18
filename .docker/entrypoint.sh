@@ -22,7 +22,7 @@ chown -R postgres:postgres /var/lib/postgresql
 chown -R postgres:postgres /var/run/postgresql
 chown -R postgres:postgres /var/log/postgresql
 chown -R postgres:postgres /etc/postgresql
-chmod 0750 /var/lib/postgresql
+chmod 0755 /var/lib/postgresql
 chmod 0750 /var/lib/postgresql/13/main || true
 
 exec gosu postgres "$@"
