@@ -1,4 +1,4 @@
-ARG VERSION=stable
+ARG VERSION=oldstable
 
 FROM greenbone/gvmd:${VERSION} as gvmd
 FROM greenbone/gvm-libs:${VERSION}
