@@ -2,16 +2,16 @@ name: Build and test C
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, stable ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, stable ]
 
 
 jobs:
   build_and_test_debug:
     name: Build and test
     runs-on: ubuntu-latest
-    container: greenbone/pg-gvm-build:unstable
+    container: greenbone/pg-gvm-build:stable
     steps:
       - uses: actions/checkout@v3
 
