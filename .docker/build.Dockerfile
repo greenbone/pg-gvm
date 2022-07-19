@@ -1,5 +1,5 @@
 # Define ARG we use through the build
-ARG VERSION=unstable
+ARG VERSION=stable
 
 # We want gvmd to be ready so we use the docker image of gvmd
 FROM greenbone/gvm-libs:${VERSION}
