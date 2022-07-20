@@ -87,8 +87,12 @@ if (PROJECT_DEV_VERSION)
   set (PROJECT_VERSION_SUFFIX "~dev${PROJECT_DEV_VERSION}")
 endif (PROJECT_DEV_VERSION)
 
-set (PROJECT_VERSION_STRING 
+set (PROJECT_VERSION_STRING
 "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${PROJECT_VERSION_SUFFIX}${GIT_REVISION}")
+
+# All versions with this API are compatible
+# If an sql update is required the minor version MUST be increased
+set (PROJECT_API_VERSION "${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}")
 
 # Check if pg_config is available
 find_program(PGCONFIG pg_config)
@@ -128,7 +132,7 @@ set(CONTROLIN "control.in")
 set(CONTROLOUT "pg-gvm.control")
 
 # Set SQL output file using the version to match postgres conventions
-set(SQLOUT "pg-gvm--${PROJECT_VERSION}.sql")
+set(SQLOUT "pg-gvm--${PROJECT_API_VERSION}.sql")
 
 # Determine the postgres lib dirs
 execute_process(COMMAND ${PGCONFIG} --sharedir OUTPUT_VARIABLE PostgreSQL_SHARE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -164,11 +168,7 @@ set (CPACK_SOURCE_IGNORE_FILES
 add_library (${CMAKE_PROJECT_NAME} MODULE ${SRCS})
 
 # Prepare control file
-add_custom_command(
-	OUTPUT ${CONTROLOUT}
-	COMMAND cat ${CONTROLIN} | sed -e's/LIBNAME/${CMAKE_PROJECT_NAME}/'  > ${CMAKE_BINARY_DIR}/${CONTROLOUT}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	DEPENDS ${CONTROLIN})
+configure_file (${CONTROLIN} ${CONTROLOUT})
 
 # Prepare SQL file
 add_custom_command(
@@ -190,11 +190,13 @@ if (CMAKE_INSTALL_DEV_PREFIX)
   )
   install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
   install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
-  install(FILES "${CMAKE_SOURCE_DIR}/sql/update/pg-gvm--1.0--1.1.sql" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
+  file(GLOB SQL_UPDATE_FILES ${CMAKE_SOURCE_DIR}/sql/update/*.sql)
+  install(FILES ${SQL_UPDATE_FILES} DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
   message(NOTICE "${CMAKE_PROJECT_NAME} installed with prefix. Run ${CMAKE_INSTALL_DEV_PREFIX}/sbin/pg-gvm-make-dev-links as root to create symlinks to this installation.")
 else (CMAKE_INSTALL_DEV_PREFIX)
   install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${PostgreSQL_EXTLIB_DIR}")
   install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
   install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
-  install(FILES "${CMAKE_SOURCE_DIR}/sql/update/pg-gvm--1.0--1.1.sql" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
+  file(GLOB SQL_UPDATE_FILES ${CMAKE_SOURCE_DIR}/sql/update/*.sql)
+  install(FILES ${SQL_UPDATE_FILES} DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
 endif (CMAKE_INSTALL_DEV_PREFIX)
