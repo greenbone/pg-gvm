@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.0)
 message ("-- Configuring PostgreSQL extension for GVMd functions...")
 
 project(pg-gvm
-        VERSION 22.4.1
+        VERSION 22.4
         LANGUAGES C)
 
 # List all sourcefiles
@@ -164,11 +164,12 @@ set (CPACK_SOURCE_IGNORE_FILES
 add_library (${CMAKE_PROJECT_NAME} MODULE ${SRCS})
 
 # Prepare control file
-add_custom_command(
-	OUTPUT ${CONTROLOUT}
-	COMMAND cat ${CONTROLIN} | sed -e's/LIBNAME/${CMAKE_PROJECT_NAME}/'  > ${CMAKE_BINARY_DIR}/${CONTROLOUT}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	DEPENDS ${CONTROLIN})
+#add_custom_command(
+	#OUTPUT ${CONTROLOUT}
+	#COMMAND cat ${CONTROLIN} | sed -e's/LIBNAME/${CMAKE_PROJECT_NAME}/'  > ${CMAKE_BINARY_DIR}/${CONTROLOUT}
+	#WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	#DEPENDS ${CONTROLIN})
+configure_file (${CONTROLIN} ${CONTROLOUT})
 
 # Prepare SQL file
 add_custom_command(
@@ -190,11 +191,11 @@ if (CMAKE_INSTALL_DEV_PREFIX)
   )
   install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
   install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
-  install(FILES "${CMAKE_SOURCE_DIR}/sql/update/pg-gvm--1.0--1.1.sql" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
+  install(FILES "${CMAKE_SOURCE_DIR}/sql/update/pg-gvm--1.0--22.4.sql" DESTINATION "${CMAKE_INSTALL_DEV_PREFIX}/share/postgresql/extension")
   message(NOTICE "${CMAKE_PROJECT_NAME} installed with prefix. Run ${CMAKE_INSTALL_DEV_PREFIX}/sbin/pg-gvm-make-dev-links as root to create symlinks to this installation.")
 else (CMAKE_INSTALL_DEV_PREFIX)
   install(TARGETS ${CMAKE_PROJECT_NAME} DESTINATION "${PostgreSQL_EXTLIB_DIR}")
   install(FILES "${CMAKE_BINARY_DIR}/${CONTROLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
   install(FILES "${CMAKE_BINARY_DIR}/${SQLOUT}" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
-  install(FILES "${CMAKE_SOURCE_DIR}/sql/update/pg-gvm--1.0--1.1.sql" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
+  install(FILES "${CMAKE_SOURCE_DIR}/sql/update/pg-gvm--1.0--22.4.sql" DESTINATION "${PostgreSQL_SHARE_DIR}/extension")
 endif (CMAKE_INSTALL_DEV_PREFIX)

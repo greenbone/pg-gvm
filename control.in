@@ -1,3 +1,3 @@
 comment = 'Functions for GVMd'
-default_version = '1.1'
-module_pathname = '$libdir/libLIBNAME'
+default_version = '@CMAKE_PROJECT_VERSION@'
+module_pathname = '$libdir/lib@CMAKE_PROJECT_NAME@'
