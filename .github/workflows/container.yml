@@ -14,9 +14,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Gather container image tags
-        id: container
-        uses: greenbone/actions/container-image-tags@v1
+      - name: Setup container meta information
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: greenbone/pg-gvm
+          labels: |
+            org.opencontainers.image.vendor=Greenbone
+            org.opencontainers.image.base.name=debian/stable-slim
+          flavor: latest=false # no latest container tag for git tags
+          tags: |
+            # create container tag for git tags
+            type=ref,event=tag
+            # use latest for stable branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=raw,value=oldstable,enable=${{ github.ref == format('refs/heads/{0}', 'oldstable') }}
+            # use unstable for main branch
+            type=raw,value=unstable,enable={{is_default_branch}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -31,12 +46,10 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.container.outputs.image-tags }}
-          platforms: linux/amd64,linux/arm64
           file: .docker/prod.Dockerfile
-          labels: |
-            org.opencontainers.image.vendor=Greenbone
-            org.opencontainers.image.revision=${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   upload-build:
     name: "Upload images for building pg-gvm"
@@ -44,11 +57,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Gather container image tags
-        id: container
-        uses: greenbone/actions/container-image-tags@v1
+      - name: Setup container meta information
+        id: meta
+        uses: docker/metadata-action@v4
         with:
-          image-name: ${{ github.repository }}-build
+          images: greenbone/pg-gvm-build
+          labels: |
+            org.opencontainers.image.vendor=Greenbone
+            org.opencontainers.image.base.name=debian/stable-slim
+          flavor: latest=false # no latest container tag for git tags
+          tags: |
+            # create container tag for git tags
+            type=ref,event=tag
+            # use latest for stable branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=raw,value=oldstable,enable=${{ github.ref == format('refs/heads/{0}', 'oldstable') }}
+            # use unstable for main branch
+            type=raw,value=unstable,enable={{is_default_branch}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -58,12 +84,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - run: echo "Build and push ${{ steps.container.outputs.image-tags }}"
+      - run: echo "Build and push ${{ steps.meta.outputs.tags }}"
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
-          tags: ${{ steps.container.outputs.image-tags }}
-          platforms: linux/amd64,linux/arm64
           file: .docker/build.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
