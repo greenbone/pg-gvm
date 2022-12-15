@@ -21,16 +21,18 @@ jobs:
           labels: |
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian/stable-slim
-          flavor: latest=false # no latest container tag for git tags
+          flavor: latest=false # no auto latest container tag for git tags
           tags: |
-            # create container tag for git tags
-            type=ref,event=tag
-            # use latest for stable branch
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
-            type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
-            type=raw,value=oldstable,enable=${{ github.ref == format('refs/heads/{0}', 'oldstable') }}
-            # use unstable for main branch
-            type=raw,value=unstable,enable={{is_default_branch}}
+            # use container tag for git tags
+            type=match,pattern=v(.*),group=1
+            # use latest for latest tag from stable branch
+            type=match,pattern=v(22\.4.*),group=1,value=latest
+            # use stable for latest 22.4 tag
+            type=match,pattern=v(22\.4.*),group=1,value=stable
+            # use oldstable for latest 21.4 tag
+            type=match,pattern=v(21\.4.*),group=1,value=oldstable
+            # use edge for default branch
+            type=edge
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -44,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: true
+          push: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }} # publish only builds from tags or main branch
           file: .docker/prod.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
@@ -64,16 +66,16 @@ jobs:
           labels: |
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian/stable-slim
-          flavor: latest=false # no auto latest container tag for git tags
+          flavor: latest=false # no latest container tag for git tags
           tags: |
             # use container tag for git tags
             type=match,pattern=v(.*),group=1
-            # use latest for latest tag from stable branch
-            type=match,pattern=v(22\.4.*),group=1,value=latest
-            # use stable for latest 22.4 tag
-            type=match,pattern=v(22\.4.*),group=1,value=stable
-            # use edge for default branch
-            type=edge
+            # use latest for stable branch
+            type=raw,value=latest,enable=${{ github.ref_name == 'stable' }}
+            type=raw,value=stable,enable=${{ github.ref_name == 'stable' }}
+            type=raw,value=oldstable,enable=${{ github.ref_name == 'oldstable' }}
+            # use unstable for main branch
+            type=raw,value=unstable,enable={{is_default_branch}}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
