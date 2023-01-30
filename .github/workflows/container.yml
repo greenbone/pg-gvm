@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push Container image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }} # publish only builds from tags or main branch
@@ -89,7 +89,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: echo "Build and push ${{ steps.meta.outputs.tags }}"
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
