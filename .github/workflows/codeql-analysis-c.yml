@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/pg-gvm-build:unstable
+    container: greenbone/gvm-libs:latest
 
     strategy:
       fail-fast: false
@@ -29,7 +29,19 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-
+    - name: Install build dependencies:
+      run: |
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+        build-essential \
+        pkg-config \
+        cmake \
+        libglib2.0-dev \
+        postgresql-server-dev-13 \
+        pkg-config \
+        libical-dev \
+        pgtap && \
+        rm -rf /var/lib/apt/lists/*
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:

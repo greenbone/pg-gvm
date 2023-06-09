@@ -15,6 +15,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install build dependencies:
+        run: |
+          apt-get update && \
+          apt-get install -y --no-install-recommends \
+          build-essential \
+          pkg-config \
+          cmake \
+          libglib2.0-dev \
+          postgresql-server-dev-13 \
+          pkg-config \
+          libical-dev \
+          pgtap && \
+          rm -rf /var/lib/apt/lists/*
+      - name: Set up database
+        run: |
+          su postgres && \
+          /etc/init.d/postgresql start && \
+          createuser -DRS root && \
+          createdb -O root gvmd && \
+          psql -d gvmd -c 'create role dba with superuser noinherit; grant dba to root;' && \
+          psql -d gvmd -c 'create extension "uuid-ossp"; create extension "pgcrypto"; create extension "pgtap";' && \
+          /etc/init.d/postgresql stop
       - name: Build and install extension
         run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make install
       - name: Start PostgreSQL server
