@@ -16,18 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Install build dependencies
-        run: |
-          apt-get update && \
-          apt-get install -y --no-install-recommends \
-          build-essential \
-          pkg-config \
-          cmake \
-          libglib2.0-dev \
-          postgresql-server-dev-13 \
-          pkg-config \
-          libical-dev \
-          pgtap && \
-          rm -rf /var/lib/apt/lists/*
+        run: .github/workflows/install-build-dependencies.sh
       - name: Set up database
         run: |
           su postgres -c " \
