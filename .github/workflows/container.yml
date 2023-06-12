@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: greenbone/actions/is-latest-tag@v2
         id: latest
       - name: Setup container meta information
