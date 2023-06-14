@@ -1,4 +1,4 @@
-ARG VERSION=unstable
+ARG VERSION=oldstable
 
 FROM greenbone/gvm-libs:${VERSION} as builder
 

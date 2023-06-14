@@ -11,7 +11,7 @@ jobs:
   build_and_test_debug:
     name: Build and test
     runs-on: ubuntu-latest
-    container: greenbone/gvm-libs:latest
+    container: greenbone/gvm-libs:oldstable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
