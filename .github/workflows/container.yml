@@ -2,8 +2,12 @@ name: Container Image Builds
 
 on:
   push:
-    branches: [main, stable]
+    branches:
+      - main
     tags: ["v*"]
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -13,87 +17,50 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: greenbone/actions/is-latest-tag@v2
+        id: latest
       - name: Setup container meta information
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: greenbone/pg-gvm
-          labels: |
-            org.opencontainers.image.vendor=Greenbone
-            org.opencontainers.image.base.name=debian/stable-slim
-          flavor: latest=false # no auto latest container tag for git tags
-          tags: |
-            # use container tag for git tags
-            type=match,pattern=v(.*),group=1
-            # use latest for latest tag from stable branch
-            type=raw,value=latest,enable=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v22.4') }}
-            # use stable for latest 22.4 tag
-            type=raw,value=stable,enable=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v22.4') }}
-            # use oldstable for latest 21.4 tag
-            type=raw,value=stable,enable=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v21.4') }}
-            # use edge for default branch
-            type=edge
-            # use branch-sha otherwise for pushes to branches other then main
-            type=raw,value={{branch}}-{{sha}},enable=${{ github.ref_type == 'branch' && github.event_name == 'push' && github.ref_name != 'main' }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to Docker Registry
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push Container image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }} # publish only builds from tags or main branch
-          file: .docker/prod.Dockerfile
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  upload-build:
-    name: "Upload images for building pg-gvm"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup container meta information
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: greenbone/pg-gvm-build
+          images: ${{ github.repository }}
           labels: |
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian/stable-slim
           flavor: latest=false # no latest container tag for git tags
           tags: |
-            # use container tag for git tags
-            type=match,pattern=v(.*),group=1
-            # use latest for stable branch
-            type=raw,value=latest,enable=${{ github.ref_name == 'stable' }}
-            type=raw,value=stable,enable=${{ github.ref_name == 'stable' }}
-            type=raw,value=oldstable,enable=${{ github.ref_name == 'oldstable' }}
-            # use unstable for main branch
-            type=raw,value=unstable,enable={{is_default_branch}}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+            # use version, major.minor and major  for tags
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+            # use edge for default branch
+            type=edge
+
+            # set label for non-published pull request builds
+            type=ref,event=pr
+
+            # when a new git tag is created set stable and a latest tags
+            type=raw,value=latest,enable=${{ steps.latest.outputs.is-latest-tag == 'true' }}
+            type=raw,value=stable,enable=${{ steps.latest.outputs.is-latest-tag == 'true' }}
+      - name: Login to Docker Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - run: echo "Build and push ${{ steps.meta.outputs.tags }}"
-      - name: Build and push
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push Container image
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: true
-          file: .docker/build.Dockerfile
+          push: ${{ github.event_name != 'pull_request' && (github.ref_type == 'tag' || github.ref_name == 'main') }}
+          file: .docker/prod.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

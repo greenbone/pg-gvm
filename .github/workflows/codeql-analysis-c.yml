@@ -19,7 +19,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/pg-gvm-build:unstable
+    container: greenbone/gvm-libs:oldstable
 
     strategy:
       fail-fast: false
@@ -29,7 +29,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-
+    - name: Install build dependencies:
+      run: .github/workflows/install-build-dependencies.sh
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
