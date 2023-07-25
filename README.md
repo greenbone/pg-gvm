@@ -16,13 +16,13 @@ This library contains functionality for ical object manipulation.
 * PostgreSQL dev >= 9.6
 * libgvm-base >= 20.8
 
-Install these packages using (on Debian GNU/Linux 'Buster' 10):
+Install these packages using (on Debian GNU/Linux bookworm 12):
 
 ```sh
-apt-get install gcc cmake pkg-config libical-dev libglib2.0-dev postgresql-server-dev-11
+apt-get install gcc cmake pkg-config libical-dev libglib2.0-dev postgresql-server-dev-15
 ```
 
-and build the gvm-libs as described in the [README](https://github.com/greenbone/gvm-libs)
+and build the gvm-libs as described in the [README](https://github.com/greenbone/gvm-libs).
 
 ## Configure and Build
 
