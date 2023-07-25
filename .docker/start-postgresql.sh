@@ -22,7 +22,11 @@ echo "host all all all $POSTGRES_HOST_AUTH_METHOD" >> $POSTGRES_HBA_CONF
 
 pg_ctlcluster -o "-k /tmp" -o "-c listen_addresses=''" $POSTGRES_VERSION main start
 
-createuser --host=/tmp -DRS "$POSTGRES_USER"
+USER_EXISTS="$(echo "SELECT 1 FROM pg_roles WHERE rolname = '$POSTGRES_USER'" | psql --host=/tmp -d postgres --tuples-only)"
+if [ -z "$USER_EXISTS" ]; then
+    createuser --host=/tmp -DRS "$POSTGRES_USER"
+fi
+
 createdb --host=/tmp -O $POSTGRES_DB "$POSTGRES_USER"
 
 psql --host=/tmp -d $POSTGRES_DB -c "create role dba with superuser noinherit;"
