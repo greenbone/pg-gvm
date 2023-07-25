@@ -32,7 +32,10 @@ if [ -n "$POSTGRES_PASSWORD" ]; then
         psql --host=/tmp -d postgres
 fi
 
-createdb --host=/tmp -O $POSTGRES_DB "$POSTGRES_USER"
+DB_EXISTS="$(echo "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DB';" | psql --host=/tmp -d postgres --tuples-only)"
+if [ -z "$DB_EXISTS" ]; then
+    createdb --host=/tmp -O "$POSTGRES_DB" "$POSTGRES_USER"
+fi;
 
 psql --host=/tmp -d $POSTGRES_DB -c "create role dba with superuser noinherit;"
 psql --host=/tmp -d $POSTGRES_DB -c "grant dba to $POSTGRES_USER;"
