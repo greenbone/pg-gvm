@@ -27,6 +27,11 @@ if [ -z "$USER_EXISTS" ]; then
     createuser --host=/tmp -DRS "$POSTGRES_USER"
 fi
 
+if [ -n "$POSTGRES_PASSWORD" ]; then
+    echo "ALTER ROLE $POSTGRES_USER PASSWORD '$POSTGRES_PASSWORD';" | \
+        psql --host=/tmp -d postgres
+fi
+
 createdb --host=/tmp -O $POSTGRES_DB "$POSTGRES_USER"
 
 psql --host=/tmp -d $POSTGRES_DB -c "create role dba with superuser noinherit;"
