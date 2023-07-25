@@ -35,7 +35,7 @@ pg_ctlcluster --foreground $POSTGRES_VERSION main stop
 
 # Touch file, signaling startup is done
 touch "$POSTGRES_DATA/started"
-pg_ctlcluster --foreground $POSTGRES_VERSION main start
+pg_ctlcluster -o "-c listen_addresses='*'" --foreground $POSTGRES_VERSION main start
 
 at_exit() {
     rm -f "$POSTGRES_DATA/started" && echo "Deleted verification file."
