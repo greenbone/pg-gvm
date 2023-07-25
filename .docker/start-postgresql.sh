@@ -1,28 +1,32 @@
 #!/bin/sh
 
-[ -z "$GVMD_USER" ] && GVMD_USER="gvmd"
-[ -z "$PGRES_DATA"] && PGRES_DATA="/var/lib/postgresql"
+[ -z "$POSTGRES_USER" ] && POSTGRES_USER="gvmd"
+[ -z "$POSTGRES_DATA" ] && POSTGRES_DATA="/var/lib/postgresql"
 
-rm -f $PGRES_DATA/started
+POSTGRES_DB=gvmd
+POSTGRES_VERSION=13
 
-pg_ctlcluster -o "-k /tmp" 13 main start
+rm -f "$POSTGRES_DATA/started"
 
-createuser --host=/tmp -DRS "$GVMD_USER"
-createdb --host=/tmp -O gvmd "$GVMD_USER"
+pg_ctlcluster -o "-k /tmp" $POSTGRES_VERSION main start
 
-psql --host=/tmp -d gvmd -c "create role dba with superuser noinherit;"
-psql --host=/tmp -d gvmd -c "grant dba to $GVMD_USER;"
-psql --host=/tmp -d gvmd -c 'create extension "uuid-ossp";'
-psql --host=/tmp -d gvmd -c 'create extension "pgcrypto";'
-psql --host=/tmp -d gvmd -c 'create extension "pg-gvm";'
+createuser --host=/tmp -DRS "$POSTGRES_USER"
+createdb --host=/tmp -O $POSTGRES_DB "$POSTGRES_USER"
 
-pg_ctlcluster --foreground 13 main stop
+psql --host=/tmp -d $POSTGRES_DB -c "create role dba with superuser noinherit;"
+psql --host=/tmp -d $POSTGRES_DB -c "grant dba to $POSTGRES_USER;"
+psql --host=/tmp -d $POSTGRES_DB -c 'create extension "uuid-ossp";'
+psql --host=/tmp -d $POSTGRES_DB -c 'create extension "pgcrypto";'
+psql --host=/tmp -d $POSTGRES_DB -c 'create extension "pg-gvm";'
+
+pg_ctlcluster --foreground $POSTGRES_VERSION main stop
+
 # Touch file, signaling startup is done
-touch $PGRES_DATA/started
-pg_ctlcluster --foreground 13 main start
+touch "$POSTGRES_DATA/started"
+pg_ctlcluster --foreground $POSTGRES_VERSION main start
 
 at_exit() {
-    rm -f "$PGRES_DATA/started" && echo "Deleted verification file."
+    rm -f "$POSTGRES_DATA/started" && echo "Deleted verification file."
 }
 
 trap at_exit EXIT
