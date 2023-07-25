@@ -37,11 +37,26 @@ if [ -z "$DB_EXISTS" ]; then
     createdb --host=/tmp -O "$POSTGRES_DB" "$POSTGRES_USER"
 fi;
 
-psql --host=/tmp -d $POSTGRES_DB -c "create role dba with superuser noinherit;"
-psql --host=/tmp -d $POSTGRES_DB -c "grant dba to $POSTGRES_USER;"
-psql --host=/tmp -d $POSTGRES_DB -c 'create extension "uuid-ossp";'
-psql --host=/tmp -d $POSTGRES_DB -c 'create extension "pgcrypto";'
-psql --host=/tmp -d $POSTGRES_DB -c 'create extension "pg-gvm";'
+DBA_EXISTS="$(echo "SELECT 1 FROM pg_roles WHERE rolname = 'dba';" | psql --host=/tmp -d $POSTGRES_DB --tuples-only)"
+if [ -z "$DBA_EXISTS" ]; then
+    psql --host=/tmp -d $POSTGRES_DB -c "create role dba with superuser noinherit;"
+    psql --host=/tmp -d $POSTGRES_DB -c "grant dba to $POSTGRES_USER;"
+fi
+
+UUID_OSSP_EXTENSION_EXISTS="$(echo "SELECT 1 FROM pg_extension WHERE extname = 'uuid-ossp';" | psql --host=/tmp -d $POSTGRES_DB --tuples-only)"
+if [ -z "$UUID_OSSP_EXTENSION_EXISTS" ]; then
+    psql --host=/tmp -d $POSTGRES_DB -c 'create extension "uuid-ossp";'
+fi
+
+PGCRYPTO_EXTENSION_EXISTS="$(echo "SELECT 1 FROM pg_extension WHERE extname = 'pgcrypto';" | psql --host=/tmp -d $POSTGRES_DB --tuples-only)"
+if [ -z "$PGCRYPTO_EXTENSION_EXISTS" ]; then
+    psql --host=/tmp -d $POSTGRES_DB -c 'create extension "pgcrypto";'
+fi
+
+PG_GVM_EXTENSION_EXISTS="$(echo "SELECT 1 FROM pg_extension WHERE extname = 'pg-gvm';" | psql --host=/tmp -d $POSTGRES_DB --tuples-only)"
+if [ -z "$PG_GVM_EXTENSION_EXISTS" ]; then
+    psql --host=/tmp -d $POSTGRES_DB -c 'create extension "pg-gvm";'
+fi
 
 pg_ctlcluster --foreground $POSTGRES_VERSION main stop
 
