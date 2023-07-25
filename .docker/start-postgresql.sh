@@ -20,4 +20,9 @@ pg_ctlcluster --foreground 13 main stop
 # Touch file, signaling startup is done
 touch $PGRES_DATA/started
 pg_ctlcluster --foreground 13 main start
-trap 'rm -f $PGRES_DATA/started && echo "Deleted verification file."' EXIT
+
+at_exit() {
+    rm -f "$PGRES_DATA/started" && echo "Deleted verification file."
+}
+
+trap at_exit EXIT
