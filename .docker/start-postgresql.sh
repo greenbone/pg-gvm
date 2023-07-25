@@ -20,7 +20,7 @@ fi
 
 echo "host all all all $POSTGRES_HOST_AUTH_METHOD" >> $POSTGRES_HBA_CONF
 
-pg_ctlcluster -o "-k /tmp" $POSTGRES_VERSION main start
+pg_ctlcluster -o "-k /tmp" -o "-c listen_addresses=''" $POSTGRES_VERSION main start
 
 createuser --host=/tmp -DRS "$POSTGRES_USER"
 createdb --host=/tmp -O $POSTGRES_DB "$POSTGRES_USER"
