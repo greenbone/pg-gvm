@@ -48,9 +48,8 @@ RUN apt-get update && \
 
 WORKDIR /home/postgres
 
-RUN usermod -u 104 postgres && groupmod -g 106 postgres
-
-RUN chown -R postgres:postgres /var/lib/postgresql && \
+RUN usermod -u 104 postgres && groupmod -g 106 postgres && \
+    chown -R postgres:postgres /var/lib/postgresql && \
     chown -R postgres:postgres /var/run/postgresql && \
     chown -R postgres:postgres /var/log/postgresql && \
     chown -R postgres:postgres /etc/postgresql && \
