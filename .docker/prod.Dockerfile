@@ -55,9 +55,6 @@ RUN usermod -u 104 postgres && groupmod -g 106 postgres && \
     chown -R postgres:postgres /etc/postgresql && \
     chmod 755 /usr/local/bin/start-postgresql /usr/local/bin/entrypoint
 
-
-RUN sed -i 's/peer/trust/' /etc/postgresql/13/main/pg_hba.conf
-
 ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
 
 CMD ["/usr/local/bin/start-postgresql"]
