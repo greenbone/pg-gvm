@@ -34,11 +34,32 @@ jobs:
           github.event.pull_request.merged == true )
     runs-on: 'ubuntu-latest'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Selecting the Release type
         id: release-type
         uses: greenbone/actions/release-type@v3
         with:
           release-type-input: ${{ inputs.release-type }}
+      - name: Install pontos
+        uses: greenbone/actions/setup-pontos@v3
+      - name: Release Version
+        id: release
+        run:
+          pontos-release show --release-type ${{ steps.release-type.outputs.release-type }} --output-format github-action
+      - name: Show versions
+        run: |
+          echo "Current release: ${{ steps.release.outputs.last_release_version}}"
+          echo "Next release: ${{ steps.release.outputs.release_version}}"
+      - name: Check for SQL migration script
+        run: |
+          found=$(find ./sql/update -name "*--${{ steps.release.outputs.release_version_major }}.${{ steps.release.outputs.release_version_minor }}.sql" | wc -l)
+          if [ $found -eq 0 ]; then
+            echo "::error ::Missing SQL migration file in ./sql/update for ${{ steps.release.outputs.release_version_major }}.${{ steps.release.outputs.release_version_minor }} release"
+            exit 1
+          fi
       - name: Release with release action
         uses: greenbone/actions/release@v3
         with:
