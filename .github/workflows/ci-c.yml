@@ -14,7 +14,7 @@ jobs:
     container: greenbone/gvm-libs:oldstable
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install build dependencies
         run: .github/workflows/install-build-dependencies.sh
       - name: Set up database
