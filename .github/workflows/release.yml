@@ -38,6 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Selecting the Release type
         id: release-type
         uses: greenbone/actions/release-type@v3
