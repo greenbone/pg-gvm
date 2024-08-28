@@ -11,9 +11,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  images:
-    name: Build and upload container images
-    runs-on: ubuntu-latest
+  generate:
+    name: Generate pg-gvm archive
+    runs-on:
+     - self-hosted
+     - self-hosted-generic
+    outputs:
+      labels: ${{ steps.meta.outputs.labels }}
+      feed-info: ${{ steps.feed-info.outputs.feed-version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,8 +26,24 @@ jobs:
           fetch-depth: 0
       - uses: greenbone/actions/is-latest-tag@v3
         id: latest
+      - name: Determine Feed Info
+        id: feed-info
+        run: |
+          echo "feed-version=$(date +"%Y%m%d%H%M")" >> $GITHUB_OUTPUT
+      - name: Create pg-gvm archive
+        run: tar -cvJ -f pg-gvm.tar.xz .
+      - name: Create build context
+        run: |
+          mkdir -p /tmp/context/pg-gvm/
+          cp pg-gvm.tar.xz /tmp/context/pg-gvm/
+          cp .docker/*.sh /tmp/context
+      - name: Upload dfn-cert-data archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: pg-gvm
+          path: /tmp/context
       - name: Setup container meta information
-        id: meta
+        id: labels
         uses: docker/metadata-action@v5
         with:
           images: ${{ github.repository }}
@@ -30,18 +51,42 @@ jobs:
             org.opencontainers.image.vendor=Greenbone
             org.opencontainers.image.base.name=debian/stable-slim
           flavor: latest=false # no latest container tag for git tags
+  ghcr: 
+    needs: generate
+    name: Build and push to ghcr.io (for feed-deployment only!!!)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: greenbone/actions/checkout@v3
+      - name: Clean directory
+        run: rm -rf ${{ matrix.FEED_TYPE }}/*
+      - uses: actions/download-artifact@v4
+        with:
+          name: pg-gvm
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.IMAGE_REGISTRY }}
+          username: ${{ secrets.GREENBONE_BOT }}
+          password: ${{ secrets.GREENBONE_BOT_PACKAGES_WRITE_TOKEN }}
+      - name: Setup additional container meta information
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}  
           tags: |
             # use version, major.minor and major  for tags
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-
+    
             # use edge for default branch
             type=edge
-
+    
             # set label for non-published pull request builds
             type=ref,event=pr
-
+    
             # when a new git tag is created set stable and a latest tags
             type=raw,value=latest,enable=${{ steps.latest.outputs.is-latest-tag == 'true' }}
             type=raw,value=stable,enable=${{ steps.latest.outputs.is-latest-tag == 'true' }}
@@ -49,16 +94,10 @@ jobs:
         id: container-opts
         run: |
           if [[ "${{ github.ref_type }}" = 'tag' ]]; then
-            echo "gvm-libs-version=oldstable" >> $GITHUB_OUTPUT
-          else
+             echo "gvm-libs-version=oldstable" >> $GITHUB_OUTPUT
+           else
             echo "gvm-libs-version=oldstable-edge" >> $GITHUB_OUTPUT
           fi
-      - name: Login to Docker Registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -69,8 +108,24 @@ jobs:
           context: .
           push: ${{ github.event_name != 'pull_request' && (github.ref_type == 'tag' || github.ref_name == 'main') }}
           build-args: |
-            GVM_LIBS_VERSION=${{ steps.container-opts.outputs.gvm-libs-version }}
+             GVM_LIBS_VERSION=${{ steps.container-opts.outputs.gvm-libs-version }}
           file: .docker/prod.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ needs.generate.outputs.labels }}
+
+  harbor:
+    name: Build and push to self-hosted harbor
+    needs: generate
+    uses: greenbone/workflows/.github/workflows/container-build-push-feed.yml@main
+    with:
+      artifact-name: pg-gvm
+      artifact-path: /tmp/context
+      build-context: /tmp/context
+      image-labels: ${{ needs.generate.outputs.labels }}
+      image-tags: |
+        type=raw,value=community
+        type=raw,value=latest
+        type=raw,value=${{ needs.generate.outputs.feed-info }}
+      image-url: community/pg-gvm
+    secrets: inherit
