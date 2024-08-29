@@ -102,6 +102,7 @@ jobs:
     needs: generate
     uses: greenbone/workflows/.github/workflows/container-build-push-feed.yml@main
     with:
+      build-docker-file: .docker/prod.Dockerfile
       image-labels: ${{ needs.generate.outputs.labels }}
       image-tags: |
         type=raw,value=community
