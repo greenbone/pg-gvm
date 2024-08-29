@@ -30,11 +30,6 @@ jobs:
         id: feed-info
         run: |
           echo "feed-version=$(date +"%Y%m%d%H%M")" >> $GITHUB_OUTPUT
-      - name: Create build context
-        run: |
-          mkdir -p /tmp/context/pg-gvm/
-          cp pg-gvm.tar.xz /tmp/context/pg-gvm/
-          cp .docker/*.sh /tmp/context
       - name: Setup container meta information
         id: labels
         uses: docker/metadata-action@v5
@@ -51,10 +46,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: greenbone/actions/checkout@v3
-      - uses: actions/download-artifact@v4
-        with:
-          name: pg-gvm
-          path: /tmp/context
       - name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -111,9 +102,6 @@ jobs:
     needs: generate
     uses: greenbone/workflows/.github/workflows/container-build-push-feed.yml@main
     with:
-      artifact-name: pg-gvm
-      artifact-path: /tmp/context
-      build-context: /tmp/context
       image-labels: ${{ needs.generate.outputs.labels }}
       image-tags: |
         type=raw,value=community
