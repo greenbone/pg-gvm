@@ -52,7 +52,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ secrets.GREENBONE_BOT }}
-          password: ${{ secrets.GREENBONE_BOT_PACKAGES_WRITE_TOKEN }}
+          password: ${{ secrets.GREENBONE_BOT_TOKEN }}
       - name: Setup additional container meta information
         id: meta
         uses: docker/metadata-action@v5
