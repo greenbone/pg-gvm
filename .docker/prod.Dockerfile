@@ -1,6 +1,6 @@
 ARG GVM_LIBS_VERSION=oldstable
 
-FROM greenbone/gvm-libs:${GVM_LIBS_VERSION} as builder
+FROM greenbone/gvm-libs:${GVM_LIBS_VERSION} AS builder
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
