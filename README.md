@@ -1,8 +1,9 @@
 ![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_new-logo_horizontal_rgb_small.png)
 
-# Greenbone Library for ical functions
+# Greenbone Library for PostgreSQL utility functions
 
-This library contains functionality for ical object manipulation.
+This library contains PostgreSQL utility functions. For example to compute host
+and ical information within SQL statements.
 
 # Build and Installation
 
@@ -32,6 +33,7 @@ This extension can be configured, built and installed with the following command
 cmake .
 make && make install
 ```
+
 ## Use the extension
 
 To use the extension in a database create the extension using
