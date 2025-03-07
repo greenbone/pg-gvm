@@ -3,9 +3,9 @@
 [ -z "$POSTGRES_USER" ] && POSTGRES_USER="gvmd"
 [ -z "$POSTGRES_DATA" ] && POSTGRES_DATA="/var/lib/postgresql"
 [ -z "$POSTGRES_HOST_AUTH_METHOD" ] && POSTGRES_HOST_AUTH_METHOD="md5"
+[ -z "$POSTGRES_VERSION" ] && POSTGRES_VERSION=13
 
 POSTGRES_DB=gvmd
-POSTGRES_VERSION=13
 POSTGRES_HBA_CONF="/etc/postgresql/$POSTGRES_VERSION/main/pg_hba.conf"
 
 rm -f "$POSTGRES_DATA/started"
