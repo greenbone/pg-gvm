@@ -19,7 +19,8 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    container: greenbone/gvm-libs:oldstable
+    container:
+      image: registry.community.greenbone.net/community/gvm-libs:oldstable
 
     strategy:
       fail-fast: false
