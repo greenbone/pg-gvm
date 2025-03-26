@@ -1,6 +1,6 @@
 ARG GVM_LIBS_VERSION=oldstable
 
-FROM greenbone/gvm-libs:${GVM_LIBS_VERSION} AS builder
+FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION} AS builder
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
@@ -29,7 +29,7 @@ RUN mkdir /build && \
     cmake -DCMAKE_BUILD_TYPE=Release /source && \
     make DESTDIR=/install install
 
-FROM greenbone/gvm-libs:${GVM_LIBS_VERSION}
+FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION}
 
 COPY --from=builder /install/ /
 COPY .docker/start-postgresql.sh /usr/local/bin/start-postgresql
