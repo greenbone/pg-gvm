@@ -2,10 +2,9 @@ name: Build and test C
 
 on:
   push:
-    branches: [ main, stable ]
+    branches: [main, stable]
   pull_request:
-    branches: [ main, stable ]
-
+    branches: [main, stable]
 
 jobs:
   build_and_test_debug:
@@ -39,3 +38,25 @@ jobs:
         run: psql -d gvmd < gvmd-tables.sql
       - name: Run tests
         run: pg_prove -d gvmd tests/*.sql
+
+  cmake-format-check:
+    name: Check CMake Formatting
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: greenbone/actions/uv@v3
+        with:
+          install: gersemi
+      - name: Check CMake Format
+        id: check
+        run: |
+          gersemi --check . cmake
+      - name: Report Diff
+        if: ${{ failure() && steps.check.outcome == 'failure' }}
+        run: |
+          echo "## CMake Format Check" >> $GITHUB_STEP_SUMMARY
+          gersemi --check --no-warn-about-unknown-commands . cmake >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo "## CMake Format Diff" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          gersemi --diff . cmake >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
