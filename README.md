@@ -16,6 +16,7 @@ and ical information within SQL statements.
   - [Support](#support)
   - [Maintainer](#maintainer)
   - [Contributing](#contributing)
+    - [CMake formatting](#cmake-formatting)
   - [License](#license)
 
 # Build and Installation
@@ -108,6 +109,22 @@ Your contributions are highly appreciated. Please [create a pull
 request](https://github.com/greenbone/pg-gvm/pulls) on GitHub. Bigger changes need
 to be discussed with the development team via the [issues section at
 github](https://github.com/greenbone/pg-gvm/issues) first.
+
+### CMake formatting
+
+All CMake files are formatted using [gersemi](https://github.com/BlankSpruce/gersemi).
+To install gersemi on a Debian based system the following commands can be used:
+
+```sh
+sudo apt install pipx
+pipx install gersemi
+```
+
+To format all CMake files run the command:
+
+```sh
+gersemi -i cmake .
+```
 
 ## License
 
