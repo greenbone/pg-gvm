@@ -87,3 +87,14 @@ jobs:
           changelog: /tmp/changelog.md
           ref: ${{ steps.release-type.outputs.release-ref }}
           versioning-scheme: "semver"
+
+  trigger-development-packaging-pipeline:
+    needs: [ build-and-release ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger development-packaging workflow
+        uses: greenbone/actions/trigger-workflow@487dab5354ace3dd575c8cf100a3e522c1dd3a79
+        with:
+          token: ${{ secrets.GREENBONE_BOT_TOKEN }}
+          repository: "greenbone/gea-experiments"
+          workflow: development-packaging.yml
