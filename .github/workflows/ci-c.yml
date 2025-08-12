@@ -10,12 +10,12 @@ jobs:
   build_and_test_debug:
     name: Build and test
     runs-on: ubuntu-latest
-    container: registry.community.greenbone.net/community/gvm-libs:oldstable
+    container: registry.community.greenbone.net/community/gvm-libs:stable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install build dependencies
-        run: .github/workflows/install-build-dependencies.sh
+        run: sh .github/install-dependencies.sh .github/build-dependencies.list
       - name: Set up database
         run: |
           su postgres -c " \
@@ -27,9 +27,12 @@ jobs:
           /etc/init.d/postgresql stop \
           "
       - name: Build and install extension
-        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make install
+        run: |
+          rm -rf .git
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build -j $(nproc) -- install
       - name: Start PostgreSQL server
-        run: su postgres -c "pg_ctlcluster 13 main start"
+        run: su postgres -c "pg_ctlcluster 17 main start"
       - name: Add "/usr/local/lib" as ld directory
         run: echo "/usr/local/lib" >> /etc/ld.so.conf.d/gvm.conf && ldconfig
       - name: Add pg-gvm extension
