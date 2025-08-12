@@ -49,9 +49,9 @@ jobs:
         id: container-opts
         run: |
           if [[ "${{ github.ref_type }}" = 'tag' ]]; then
-            echo "gvm-libs-version=oldstable" >> $GITHUB_OUTPUT
+            echo "gvm-libs-version=stable" >> $GITHUB_OUTPUT
           else
-            echo "gvm-libs-version=oldstable-edge" >> $GITHUB_OUTPUT
+            echo "gvm-libs-version=edge" >> $GITHUB_OUTPUT
           fi
       - name: Login to Docker Registry
         if: github.event_name != 'pull_request'

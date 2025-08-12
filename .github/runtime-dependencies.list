@@ -1,0 +1,7 @@
+libgpgme11
+libical3
+libpq5
+gosu
+postgresql
+postgresql-client
+postgresql-client-common

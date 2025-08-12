@@ -1,0 +1,12 @@
+build-essential
+ca-certificates
+clang-format
+cmake
+curl
+git
+libglib2.0-dev
+libgnutls28-dev
+libical-dev
+pkg-config
+postgresql-server-dev-all
+pgtap
