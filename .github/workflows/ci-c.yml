@@ -8,9 +8,16 @@ on:
 
 jobs:
   build_and_test_debug:
+    strategy:
+      matrix:
+        base:
+          - version: oldstable
+            postgresql: 15
+          - version: stable
+            postgresql: 17
     name: Build and test
     runs-on: ubuntu-latest
-    container: registry.community.greenbone.net/community/gvm-libs:stable
+    container: registry.community.greenbone.net/community/gvm-libs:${{ matrix.base.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,7 +39,7 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=Debug
           cmake --build build -j $(nproc) -- install
       - name: Start PostgreSQL server
-        run: su postgres -c "pg_ctlcluster 17 main start"
+        run: su postgres -c "pg_ctlcluster ${{ matrix.base.postgresql }} main start"
       - name: Add "/usr/local/lib" as ld directory
         run: echo "/usr/local/lib" >> /etc/ld.so.conf.d/gvm.conf && ldconfig
       - name: Add pg-gvm extension
