@@ -33,7 +33,7 @@ jobs:
       - name: Install build dependencies
         run: sh .github/install-dependencies.sh .github/build-dependencies.list
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
         # build between init and analyze ...
@@ -44,4 +44,4 @@ jobs:
           cmake --build build -j $(nproc) -- install
         working-directory: ${{ github.WORKSPACE }}
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
