@@ -24,4 +24,5 @@ jobs:
         org.opencontainers.image.base.name=debian:stable-slim
       image-url: community/pg-gvm
       ref-name: ${{ inputs.ref-name }}
+      service: openvas-gvmd-postgres
     secrets: inherit
