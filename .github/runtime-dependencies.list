@@ -5,3 +5,4 @@ gosu
 postgresql
 postgresql-client
 postgresql-client-common
+postgresql-common

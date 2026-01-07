@@ -23,6 +23,9 @@ chown -R postgres:postgres /var/run/postgresql
 chown -R postgres:postgres /var/log/postgresql
 chown -R postgres:postgres /etc/postgresql
 chmod 0755 /var/lib/postgresql
-chmod 0750 /var/lib/postgresql/13/main || true
+# chmod cluster dirs if they exist
+for d in /var/lib/postgresql/*/main; do
+  [ -d "$d" ] && chmod 0750 "$d" || true
+done
 
 exec gosu postgres "$@"
