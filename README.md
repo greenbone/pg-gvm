@@ -13,6 +13,7 @@ and ical information within SQL statements.
     - [Setup for tests](#setup-for-tests)
     - [Integration](#integration)
     - [Running the tests](#running-the-tests)
+  - [PostgreSQL Upgrade Migrator](./docs/PG_GVM_UPGRADE.md)
   - [Support](#support)
   - [Maintainer](#maintainer)
   - [Contributing](#contributing)
