@@ -60,7 +60,7 @@ services:
       POSTGRES_CLUSTER: "main"
       POSTGRES_DATA: /var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "test -f /var/lib/postgresql/.pg_upgrade_17_done"]
+      test: ["CMD-SHELL", "test -f /var/lib/postgresql/.pg_upgrade_done"]
       interval: 2s
       timeout: 2s
       retries: 180
