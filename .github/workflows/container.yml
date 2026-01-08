@@ -51,7 +51,7 @@ jobs:
       ref-name: ${{ inputs.ref-name }}
       dockerfile: ./.docker/migrator.Dockerfile
       images: |
-        ghcr.io/${{ github.repository }},enable=true
+        ghcr.io/${{ github.repository }}-migrator,enable=true
         ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' && matrix.build.name == 'default' }}
     secrets: inherit
 
