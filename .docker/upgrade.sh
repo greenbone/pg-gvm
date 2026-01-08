@@ -16,7 +16,7 @@ set -e
 : "${INITDB_ENCODING:=UTF8}"
 
 SOCKET_DIR="/var/run/postgresql"
-UPGRADE_MARKER="${POSTGRES_DATA}/.pg_upgrade_${TARGET_PG_MAJOR}_done"
+HEALTHCHECK_MARKER="${POSTGRES_DATA}/.pg_upgrade_done"
 
 run_as_postgres() {
   su -s /bin/sh postgres -c "cd /tmp && $1"
@@ -46,7 +46,11 @@ ensure_socket_dir() {
 }
 
 mark_done() {
-  touch "$UPGRADE_MARKER"
+  touch "$HEALTHCHECK_MARKER"
+}
+
+remove_mark() {
+  rm -f "$HEALTHCHECK_MARKER"
 }
 
 inject_conf_if_missing() {
@@ -213,13 +217,9 @@ do_upgrade_once() {
 }
 
 main() {
+  remove_mark
   ensure_tmp
   ensure_socket_dir
-
-  if [ -f "$UPGRADE_MARKER" ]; then
-    echo "Upgrade marker present ($UPGRADE_MARKER) — skipping upgrade."
-    exit 0
-  fi
 
   CURRENT="$(detect_major || true)"
   if [ -z "$CURRENT" ]; then
