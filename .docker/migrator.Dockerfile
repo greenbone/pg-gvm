@@ -81,4 +81,6 @@ RUN chmod 0755 /usr/local/bin/upgrade.sh
 
 RUN groupmod -g 106 postgres && usermod -u 104 -g 106 postgres
 
-ENTRYPOINT ["/usr/bin/tini","--","/usr/local/bin/upgrade.sh"]
+ENTRYPOINT ["/usr/bin/tini","--"]
+
+CMD ["/usr/local/bin/upgrade.sh"]
