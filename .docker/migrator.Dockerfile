@@ -75,7 +75,8 @@ COPY .docker/upgrade.sh /usr/local/bin/upgrade.sh
 RUN chmod 0755 /usr/local/bin/upgrade.sh
 
 RUN groupmod -g 106 postgres && usermod -u 104 -g 106 postgres
-
+HEALTHCHECK --interval=2s --timeout=2s --retries= 180 \
+  CMD test -f /var/lib/postgresql/.pg_upgrade_done
 ENTRYPOINT ["/usr/bin/tini","--"]
 
 CMD ["/usr/local/bin/upgrade.sh"]
