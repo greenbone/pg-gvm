@@ -1,9 +1,11 @@
 ARG GVM_LIBS_VERSION=stable
+ARG PG_MAJORS="13 14 15 16 17"
+ARG DEBIAN_FRONTEND=noninteractive
 
 FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION} AS pg_builder
 
-ARG DEBIAN_FRONTEND=noninteractive
-ARG PG_MAJORS="14 15 16 17"
+ARG DEBIAN_FRONTEND
+ARG PG_MAJORS
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -39,10 +41,16 @@ RUN set -eux; \
   done; \
   rm -rf /var/lib/apt/lists/*
 
+RUN set -eux; \
+  mkdir -p /install; \
+  for v in ${PG_MAJORS}; do \
+    cp -a /install-${v}/* /install/; \
+  done;
 
 FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION}
 
-ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND
+ARG PG_MAJORS
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -61,15 +69,14 @@ RUN set -eux; \
   echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
     > /etc/apt/sources.list.d/pgdg.list
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    postgresql-13 postgresql-14 postgresql-15 postgresql-16 postgresql-17 \
-    postgresql-client-13 postgresql-client-14 postgresql-client-15 postgresql-client-16 postgresql-client-17 \
-  && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+  for v in ${PG_MAJORS}; do \
+    apt-get update && apt-get install -y --no-install-recommends \
+      postgresql-${v} postgresql-client-${v}; \
+  done; \
+  rm -rf /var/lib/apt/lists/*
 
-COPY --from=pg_builder /install-14/ /
-COPY --from=pg_builder /install-15/ /
-COPY --from=pg_builder /install-16/ /
-COPY --from=pg_builder /install-17/ /
+COPY --from=pg_builder /install/ /
 
 COPY .docker/upgrade.sh /usr/local/bin/upgrade.sh
 RUN chmod 0755 /usr/local/bin/upgrade.sh
