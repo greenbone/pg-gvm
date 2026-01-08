@@ -34,7 +34,7 @@ This makes the migrator safe to run again.
 Example for a local build:
 
 ```bash
-docker build --no-cache -t pg-gvm-upgrade:local -f ../.docker/migrator.Dockerfile ..
+docker build --no-cache -t pg-gvm-migrator:local -f ../.docker/migrator.Dockerfile ..
 ```
 ---
 
@@ -50,7 +50,7 @@ Example service definition:
 ```yaml
 services:
   pg-gvm-migrator:
-    image: pg-gvm-upgrade:local
+    image: pg-gvm-migrator:local
     restart: "no"
     volumes:
       - psql_data_vol:/var/lib/postgresql
