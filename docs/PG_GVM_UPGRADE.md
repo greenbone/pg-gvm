@@ -55,15 +55,6 @@ services:
     volumes:
       - psql_data_vol:/var/lib/postgresql
       - psql_socket_vol:/var/run/postgresql
-    environment:
-      TARGET_PG_MAJOR: "17"
-      POSTGRES_CLUSTER: "main"
-      POSTGRES_DATA: /var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /var/lib/postgresql/.pg_upgrade_done"]
-      interval: 2s
-      timeout: 2s
-      retries: 180
 ```
 
 The healthcheck waits until the upgrade marker file exists.
