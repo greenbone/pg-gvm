@@ -49,7 +49,7 @@ jobs:
     with:
       ref: ${{ inputs.ref-name }}
       ref-name: ${{ inputs.ref-name }}
-      suffix: -migrator
+      suffix: migrator
       dockerfile: ./.docker/migrator.Dockerfile
       images: |
         ghcr.io/${{ github.repository }},enable=true
