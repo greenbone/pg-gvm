@@ -1,4 +1,4 @@
-## PostgreSQL upgrade migrator (pg-gvm)
+## PostgreSQL upgrade migrator (pg-gvm-migrator)
 
 This image upgrades an existing PostgreSQL database to a newer major version using `pg_upgrade`.
 
