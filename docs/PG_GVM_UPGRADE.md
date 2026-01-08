@@ -18,7 +18,7 @@ It is meant to run **once**, before the real `pg-gvm` service starts.
 * Creates a marker file when the upgrade finishes successfully:
 
   ```
-  /var/lib/postgresql/.pg_upgrade_17_done
+  /var/lib/postgresql/.pg_upgrade_done
   ```
 
 * If the marker file already exists, the container exits immediately and does nothing
