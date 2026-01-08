@@ -10,11 +10,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /source
 COPY . /source
 
-RUN set -eux; \
-  echo "Top-level of /source:"; \
-  ls -la /source | head -n 200; \
-  test -f /source/CMakeLists.txt
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl gnupg \
     postgresql-common \
