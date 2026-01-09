@@ -50,6 +50,7 @@ jobs:
       ref: ${{ inputs.ref-name }}
       ref-name: ${{ inputs.ref-name }}
       name: migrator
+      main-image: ghcr.io/${{ github.repository }}-migrator
       dockerfile: ./.docker/migrator.Dockerfile
       images: |
         ghcr.io/${{ github.repository }}-migrator,enable=true
