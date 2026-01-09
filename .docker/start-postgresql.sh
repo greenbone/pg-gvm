@@ -35,17 +35,28 @@ detect_installed_major() {
 POSTGRES_VERSION="${POSTGRES_VERSION:-}"
 if [ -n "${POSTGRES_VERSION}" ]; then
   if [ ! -x "/usr/lib/postgresql/${POSTGRES_VERSION}/bin/initdb" ]; then
-    echo "ERROR: POSTGRES_VERSION=${POSTGRES_VERSION} requested but initdb not found in /usr/lib/postgresql/${POSTGRES_VERSION}/bin"
+    echo "ERROR: POSTGRES_VERSION=${POSTGRES_VERSION} requested but initdb not found in /usr/lib/postgresql/${POSTGRES_VERSION}/bin" >&2
     exit 1
   fi
 else
-  if EXISTING="$(detect_existing_major)"; then
+  EXISTING="$(detect_existing_major)"
+  INSTALLED="$(detect_installed_major)"
+
+  if [ -n "${EXISTING}" ]; then
     POSTGRES_VERSION="$EXISTING"
   else
-    POSTGRES_VERSION="$(detect_installed_major)" || {
-      echo "ERROR: no PostgreSQL initdb found (checked 13-17 under /usr/lib/postgresql/<major>/bin)"
+    if [ -z "${INSTALLED}" ]; then
+      echo "ERROR: no PostgreSQL initdb found (checked 13-17 under /usr/lib/postgresql/<major>/bin)" >&2
       exit 1
-    }
+    fi
+    POSTGRES_VERSION="$INSTALLED"
+  fi
+
+  if [ "${EXISTING}" -ne "${INSTALLED}" ]; then
+    echo "ERROR: existing data is for PostgreSQL ${EXISTING} but installed version is ${INSTALLED}" >&2
+    echo "ERROR: please update your compose file for a postgres database migration or" \
+      "download the newest version from https://greenbone.github.io/docs/latest/_static/docker-compose.yml" >&2
+    exit 1
   fi
 fi
 
