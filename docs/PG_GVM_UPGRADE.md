@@ -1,8 +1,20 @@
-## PostgreSQL upgrade migrator (pg-gvm-migrator)
+# PostgreSQL upgrade migrator (pg-gvm-migrator) <!-- omit in toc -->
 
 This image upgrades an existing PostgreSQL database to a newer major version using `pg_upgrade`.
 
 It is meant to run **once**, before the real `pg-gvm` service starts.
+
+- [What this image does](#what-this-image-does)
+- [How to use the migrator image](#how-to-use-the-migrator-image)
+  - [Use pre-build image](#use-pre-build-image)
+    - [Add the migrator to your existing compose file](#add-the-migrator-to-your-existing-compose-file)
+    - [Extend the pg-gvm service for depending on the migrator](#extend-the-pg-gvm-service-for-depending-on-the-migrator)
+  - [Use a local build](#use-a-local-build)
+    - [Build the image](#build-the-image)
+    - [Add the migrator to docker-compose](#add-the-migrator-to-docker-compose)
+    - [Start pg-gvm only after the upgrade](#start-pg-gvm-only-after-the-upgrade)
+- [What happens when you run `docker compose up`](#what-happens-when-you-run-docker-compose-up)
+- [Important notes](#important-notes)
 
 ---
 
@@ -17,7 +29,7 @@ It is meant to run **once**, before the real `pg-gvm` service starts.
 
 * Creates a marker file when the upgrade finishes successfully:
 
-  ```
+  ```sh
   /var/lib/postgresql/.pg_upgrade_done
   ```
 
@@ -29,16 +41,54 @@ This makes the migrator safe to run again.
 
 ## How to use the migrator image
 
-### Build the image
+### Use pre-build image
+
+#### Add the migrator to your existing compose file
+
+Extend your compose file with the following service:
+
+```yaml
+services:
+  pg-gvm-migrator:
+    image: registry.community.greenbone.net/community/pg-gvm-migrator:stable
+    restart: "no"
+    volumes:
+      - psql_data_vol:/var/lib/postgresql
+      - psql_socket_vol:/var/run/postgresql
+```
+
+#### Extend the pg-gvm service for depending on the migrator
+
+The `pg-gvm` service must wait until the migrator finishes successfully.
+Otherwise the `pg-gvm` will not be able to start up.
+
+Example:
+
+```yaml
+  pg-gvm:
+    image: registry.community.greenbone.net/community/pg-gvm:stable
+    restart: on-failure
+    volumes:
+      - psql_data_vol:/var/lib/postgresql
+      - psql_socket_vol:/var/run/postgresql
+    depends_on:
+      pg-gvm-migrator:
+        condition: service_completed_successfully
+```
+
+### Use a local build
+
+#### Build the image
 
 Example for a local build:
 
 ```bash
 docker build --no-cache -t pg-gvm-migrator:local -f ../.docker/migrator.Dockerfile ..
 ```
+
 ---
 
-### Add the migrator to docker-compose
+#### Add the migrator to docker-compose
 
 The migrator must use the **same volumes** as PostgreSQL:
 
@@ -61,7 +111,7 @@ The healthcheck waits until the upgrade marker file exists.
 
 ---
 
-### Start pg-gvm only after the upgrade
+#### Start pg-gvm only after the upgrade
 
 The real `pg-gvm` service must wait until the migrator finishes successfully.
 
