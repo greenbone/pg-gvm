@@ -70,8 +70,9 @@ RUN set -eux; \
     > /etc/apt/sources.list.d/pgdg.list
 
 RUN set -eux; \
+  apt-get update; \
   for v in ${PG_MAJORS}; do \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
       postgresql-${v} postgresql-client-${v}; \
   done; \
   rm -rf /var/lib/apt/lists/*
