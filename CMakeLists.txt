@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.5)
 
 message("-- Configuring PostgreSQL extension for GVMd functions...")
 
-project(pg-gvm VERSION 22.6.13 LANGUAGES C)
+project(pg-gvm VERSION 22.6.14 LANGUAGES C)
 
 # List all sourcefiles
 set(
@@ -73,7 +73,7 @@ endif(NOT CMAKE_BUILD_TYPE MATCHES "Release")
 
 # Set dev version if this is a development version and not a full release,
 # unset (put value 0 or delete line) before a full release and reset after.
-set(PROJECT_DEV_VERSION 0)
+set(PROJECT_DEV_VERSION 1)
 
 # If PROJECT_DEV_VERSION is set, the version string will be set to:
 #   "major.minor.patch~dev${PROJECT_DEV_VERSION}${GIT_REVISION}"
