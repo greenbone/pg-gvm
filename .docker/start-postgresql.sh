@@ -125,6 +125,12 @@ ensure_extension() {
   [ -n "${EXISTS}" ] || psql_sock -d "${POSTGRES_DB}" -c "CREATE EXTENSION \"${ext}\";"
 }
 
+cleanup() {
+  rm -f "${POSTGRES_DATA}/started"
+  # in case of unclean shutdowns remove the lock file
+  rm -f "${POSTGRES_SOCKET_DIR}/.s.PGSQL.5432.lock"
+}
+
 ensure_extension "uuid-ossp"
 ensure_extension "pgcrypto"
 ensure_extension "pg-gvm"
@@ -132,7 +138,7 @@ ensure_extension "pg-gvm"
 pg_ctlcluster "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}" stop
 
 touch "${POSTGRES_DATA}/started"
-trap 'rm -f "${POSTGRES_DATA}/started"' EXIT
+trap cleanup EXIT
 
 exec pg_ctlcluster \
   -o "-k ${POSTGRES_SOCKET_DIR}" \
