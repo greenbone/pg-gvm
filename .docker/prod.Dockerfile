@@ -34,6 +34,10 @@ RUN usermod -u 104 postgres && groupmod -g 106 postgres && \
     chown -R postgres:postgres /etc/postgresql && \
     chmod 755 /usr/local/bin/start-postgresql /usr/local/bin/entrypoint
 
+# Use fast shutdown mode
+# See https://www.postgresql.org/docs/current/server-shutdown.html
+STOPSIGNAL SIGINT
+
 ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
 
 CMD ["/usr/local/bin/start-postgresql"]
