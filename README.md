@@ -25,7 +25,7 @@ and ical information within SQL statements.
 ## Prerequisites
 
 - GCC
-- cmake >= 3.5
+- cmake >= 3.18
 - pkg-config
 - libical >= 1.0.0
 - glib >= 2.42
@@ -129,6 +129,6 @@ gersemi -i cmake .
 
 ## License
 
-Copyright (C) 2025 [Greenbone AG](https://www.greenbone.net/)
+Copyright (C) 2026 [Greenbone AG](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v3.0 or later](LICENSE).
