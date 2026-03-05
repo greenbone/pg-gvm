@@ -56,7 +56,6 @@ jobs:
       images: |
         ghcr.io/${{ github.repository }}-migrator,enable=true
         ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' }}
-        ${{ vars.GREENBONE_REGISTRY }}/openvas-scan-dev/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' }}
     secrets: inherit
 
   notify:
