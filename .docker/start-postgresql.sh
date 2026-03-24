@@ -14,7 +14,13 @@ set -eu
 : "${POSTGRES_SOCKET_DIR:=/var/run/postgresql}"
 : "${POSTGRES_LISTEN_ADDRESSES:=*}"
 
-rm -f "${POSTGRES_DATA}/started"
+cleanup() {
+  rm -f "${POSTGRES_DATA}/started"
+  # in case of unclean shutdowns remove the lock file
+  rm -f "${POSTGRES_SOCKET_DIR}/.s.PGSQL.5432.lock"
+}
+
+cleanup
 
 detect_existing_major() {
   for f in "${POSTGRES_DATA}"/*/"${POSTGRES_CLUSTER}"/PG_VERSION; do
@@ -125,12 +131,6 @@ ensure_extension() {
   [ -n "${EXISTS}" ] || psql_sock -d "${POSTGRES_DB}" -c "CREATE EXTENSION \"${ext}\";"
 }
 
-cleanup() {
-  rm -f "${POSTGRES_DATA}/started"
-  # in case of unclean shutdowns remove the lock file
-  rm -f "${POSTGRES_SOCKET_DIR}/.s.PGSQL.5432.lock"
-}
-
 ensure_extension "uuid-ossp"
 ensure_extension "pgcrypto"
 ensure_extension "pg-gvm"
@@ -138,7 +138,7 @@ ensure_extension "pg-gvm"
 pg_ctlcluster "${POSTGRES_VERSION}" "${POSTGRES_CLUSTER}" stop
 
 touch "${POSTGRES_DATA}/started"
-trap cleanup EXIT
+trap cleanup INT QUIT TERM EXIT
 
 exec pg_ctlcluster \
   -o "-k ${POSTGRES_SOCKET_DIR}" \
