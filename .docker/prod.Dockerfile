@@ -40,4 +40,6 @@ STOPSIGNAL SIGINT
 
 ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
 
+HEALTHCHECK --interval=5s --retries=3 --timeout=30s --start-period=240s CMD ["pg_isready", "-U", "gvmd", "-d", "gvmd"]
+
 CMD ["/usr/local/bin/start-postgresql"]
