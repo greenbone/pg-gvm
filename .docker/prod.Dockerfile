@@ -1,6 +1,6 @@
 ARG GVM_LIBS_VERSION=stable
 
-FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION} AS builder
+FROM ghcr.io/greenbone/gvm-libs:${GVM_LIBS_VERSION} AS builder
 
 # This will make apt-get install without question
 ARG DEBIAN_FRONTEND=noninteractive
@@ -15,7 +15,7 @@ RUN sh /source/.github/install-dependencies.sh \
 RUN cmake -DCMAKE_BUILD_TYPE=Release -B/build /source \
     && DESTDIR=/install cmake --build /build -j$(nproc) -- install
 
-FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION}
+FROM ghcr.io/greenbone/gvm-libs:${GVM_LIBS_VERSION}
 
 COPY --from=builder /install/ /
 COPY .docker/start-postgresql.sh /usr/local/bin/start-postgresql
