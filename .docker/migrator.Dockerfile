@@ -2,7 +2,7 @@ ARG GVM_LIBS_VERSION=stable
 ARG PG_MAJORS="13 14 15 16 17"
 ARG DEBIAN_FRONTEND=noninteractive
 
-FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION} AS pg_builder
+FROM ghcr.io/greenbone/gvm-libs:${GVM_LIBS_VERSION} AS pg_builder
 
 ARG DEBIAN_FRONTEND
 ARG PG_MAJORS
@@ -13,41 +13,41 @@ WORKDIR /source
 COPY . /source
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl gnupg \
-    postgresql-common \
-    build-essential cmake git pkg-config \
-    libglib2.0-dev libgnutls28-dev libical-dev \
+  ca-certificates curl gnupg \
+  postgresql-common \
+  build-essential cmake git pkg-config \
+  libglib2.0-dev libgnutls28-dev libical-dev \
   && rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
   . /etc/os-release; \
   echo "Detected builder distro codename: ${VERSION_CODENAME}"; \
   curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
-    | gpg --dearmor -o /usr/share/keyrings/postgresql.gpg; \
+  | gpg --dearmor -o /usr/share/keyrings/postgresql.gpg; \
   echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
-    > /etc/apt/sources.list.d/pgdg.list
+  > /etc/apt/sources.list.d/pgdg.list
 
 RUN set -eux; \
   apt-get update; \
   for v in ${PG_MAJORS}; do \
-    echo "==== Building for PostgreSQL ${v} ===="; \
-    apt-get install -y --no-install-recommends postgresql-server-dev-${v}; \
-    rm -rf /build && mkdir -p /build; \
-    export PATH="/usr/lib/postgresql/${v}/bin:${PATH}"; \
-    command -v pg_config; \
-    pg_config --version; \
-    cmake -S /source -B /build -DCMAKE_BUILD_TYPE=Release; \
-    DESTDIR="/install-${v}" cmake --build /build -j"$(nproc)" --target install; \
+  echo "==== Building for PostgreSQL ${v} ===="; \
+  apt-get install -y --no-install-recommends postgresql-server-dev-${v}; \
+  rm -rf /build && mkdir -p /build; \
+  export PATH="/usr/lib/postgresql/${v}/bin:${PATH}"; \
+  command -v pg_config; \
+  pg_config --version; \
+  cmake -S /source -B /build -DCMAKE_BUILD_TYPE=Release; \
+  DESTDIR="/install-${v}" cmake --build /build -j"$(nproc)" --target install; \
   done; \
   rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
   mkdir -p /install; \
   for v in ${PG_MAJORS}; do \
-    cp -a /install-${v}/* /install/; \
+  cp -a /install-${v}/* /install/; \
   done;
 
-FROM registry.community.greenbone.net/community/gvm-libs:${GVM_LIBS_VERSION}
+FROM ghcr.io/greenbone/gvm-libs:${GVM_LIBS_VERSION}
 
 ARG DEBIAN_FRONTEND
 ARG PG_MAJORS
