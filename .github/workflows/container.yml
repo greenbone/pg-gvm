@@ -97,7 +97,9 @@ jobs:
   automatix-migration:
     name: Update PG GVM Migration in Automatix
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: build
+    needs: 
+      - build-migration-image
+      - automatix
     uses: greenbone/workflows/.github/workflows/automatix-service.yml@main
     with:
       service: openvas-gvmd-postgres-migrator
