@@ -39,8 +39,8 @@ jobs:
       prefix: ${{ matrix.build.prefix }}
       images: |
         ghcr.io/${{ github.repository }},enable=true
-        ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }},enable=${{ github.event_name != 'pull_request' && matrix.build.name == 'default' }}
-        ${{ vars.GREENBONE_REGISTRY }}/openvas-scan-dev/${{ github.event.repository.name }},enable=${{ github.event_name != 'pull_request' && matrix.build.name == 'default' }}
+        ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }},enable=${{ github.event_name != 'pull_request' && github.ref_type == 'tag' && matrix.build.name == 'default' }}
+        ${{ vars.GREENBONE_REGISTRY }}/openvas-scan-dev/${{ github.event.repository.name }},enable=${{ github.event_name != 'pull_request' && github.ref_type == 'tag' && matrix.build.name == 'default' }}
     secrets: inherit
 
   build-migration-image:
@@ -55,8 +55,8 @@ jobs:
       dockerfile: ./.docker/migrator.Dockerfile
       images: |
         ghcr.io/${{ github.repository }}-migrator,enable=true
-        ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' }}
-        ${{ vars.GREENBONE_REGISTRY }}/openvas-scan-dev/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' }}
+        ${{ vars.GREENBONE_REGISTRY }}/community/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' && github.ref_type == 'tag' }}
+        ${{ vars.GREENBONE_REGISTRY }}/openvas-scan-dev/${{ github.event.repository.name }}-migrator,enable=${{ github.event_name != 'pull_request' && github.ref_type == 'tag' }}
     secrets: inherit
 
   notify:
@@ -97,7 +97,7 @@ jobs:
   automatix-migration:
     name: Update PG GVM Migration in Automatix
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: 
+    needs:
       - build-migration-image
       - automatix
     uses: greenbone/workflows/.github/workflows/automatix-service.yml@main
