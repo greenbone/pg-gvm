@@ -20,7 +20,7 @@ jobs:
     container: registry.community.greenbone.net/community/gvm-libs:${{ matrix.base.version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install build dependencies
         run: sh .github/install-dependencies.sh .github/build-dependencies.list
       - name: Set up database
@@ -53,8 +53,8 @@ jobs:
     name: Check CMake Formatting
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v7
-      - uses: greenbone/actions/uv@v3.36.12
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: greenbone/actions/uv@v3
         with:
           install: gersemi
       - name: Check CMake Format
