@@ -1,4 +1,4 @@
-name: 'Dependency Review'
+name: "Dependency Review"
 on: [pull_request]
 
 permissions:
@@ -8,5 +8,5 @@ jobs:
   dependency-review:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Dependency Review'
-        uses: greenbone/actions/dependency-review@v3.36.12
+      - name: "Dependency Review"
+        uses: greenbone/actions/dependency-review@v3
