@@ -27,7 +27,7 @@ and ical information within SQL statements.
 - GCC
 - cmake >= 3.18
 - pkg-config
-- libical >= 1.0.0
+- libical >= 3.0.11
 - glib >= 2.42
 - PostgreSQL dev >= 9.6
 - libgvm-base >= 20.8

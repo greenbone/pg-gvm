@@ -47,7 +47,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(FindPkgConfig)
 
 # Check if libical is installed
-pkg_check_modules(LIBICAL REQUIRED libical>=1.00)
+pkg_check_modules(LIBICAL REQUIRED libical>=3.0.11)
 pkg_check_modules(GLIB REQUIRED glib-2.0>=2.42)
 pkg_check_modules(LIBGVM_BASE REQUIRED libgvm_base>=22.6)
 
