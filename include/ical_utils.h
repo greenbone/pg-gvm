@@ -26,6 +26,7 @@
 
 #include <libical/ical.h>
 #include <time.h>
+#include <glib.h>
 
 icaltimezone *
 icalendar_timezone_from_string_x (const char *);
